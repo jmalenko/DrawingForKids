@@ -5,9 +5,10 @@ import android.os.Bundle
 import android.view.View
 
 /**
- * A full-screen activity that prevents interaction with outside of the app. Specifically:
+ * An activity that prevents interaction with outside of the app. Specifically:
+ * - Fullscreen activity (sticky immersive mode)
  * - Contains only the drawing view
- * - Prevent screen rotation
+ * - Prevents screen rotation
  */
 class DrawingActivity : Activity() {
 
