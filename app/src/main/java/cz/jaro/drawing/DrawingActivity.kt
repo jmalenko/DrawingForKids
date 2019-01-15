@@ -25,6 +25,10 @@ class DrawingActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_drawing)
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         // Fullscreen - sticky immersive mode
         window.decorView.systemUiVisibility =
