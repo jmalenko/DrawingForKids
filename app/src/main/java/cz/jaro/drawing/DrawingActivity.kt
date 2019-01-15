@@ -2,9 +2,9 @@ package cz.jaro.drawing
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import java.util.logging.Logger
 
 /**
  * An activity that prevents interaction with outside of the app. Specifically:
@@ -15,7 +15,7 @@ import java.util.logging.Logger
  */
 class DrawingActivity : Activity() {
 
-    val log = Logger.getLogger(DrawingActivity::class.java.name)
+    private val TAG = DrawingActivity::class.java.name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class DrawingActivity : Activity() {
         when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                log.info("Blocked key ${keyCodeToString(keyCode)}")
+                Log.i(TAG, "Blocked key ${keyCodeToString(keyCode)}")
                 // Do nothing
             }
         }
