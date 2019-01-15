@@ -25,19 +25,27 @@ class DrawingActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_drawing)
-    }
-
-    override fun onStart() {
-        super.onStart()
 
         // Fullscreen - sticky immersive mode
+        enableImmersiveMode()
+
+        // Keep the screen on
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus) {
+            enableImmersiveMode()
+        }
+    }
+
+    private fun enableImmersiveMode() {
         window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-
-        // Keep the screen on
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     override fun onPause() {
