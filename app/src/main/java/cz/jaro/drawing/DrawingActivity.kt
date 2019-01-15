@@ -7,6 +7,7 @@ import android.view.View
 /**
  * A full-screen activity that prevents interaction with outside of the app. Specifically:
  * - Contains only the drawing view
+ * - Prevent screen rotation
  */
 class DrawingActivity : Activity() {
 
