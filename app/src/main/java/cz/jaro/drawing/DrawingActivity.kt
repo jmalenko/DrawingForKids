@@ -1,4 +1,4 @@
-package cz.jaro.drawingforkids
+package cz.jaro.drawing
 
 import android.app.Activity
 import android.os.Bundle

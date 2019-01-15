@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cz.jaro.drawingforkids.DrawingView xmlns:android="http://schemas.android.com/apk/res/android"
+<cz.jaro.drawing.DrawingView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/canvas"
     android:layout_width="match_parent"
@@ -7,4 +7,4 @@
     android:background="@color/white"
     tools:context=".DrawingActivity">
 
-</cz.jaro.drawingforkids.DrawingView>
+</cz.jaro.drawing.DrawingView>
