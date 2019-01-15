@@ -7,12 +7,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 
 /**
  * An activity that prevents interaction with outside of the app. Specifically:
  * - Fullscreen activity (sticky immersive mode), single instance
  * - Contain only the drawing view
  * - Prevent screen rotation
+ * - Keep screen on
  * - Prevent volume buttons, back button, apps button
  */
 class DrawingActivity : Activity() {
@@ -29,6 +31,9 @@ class DrawingActivity : Activity() {
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+
+        // Keep the screen on
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     override fun onPause() {
