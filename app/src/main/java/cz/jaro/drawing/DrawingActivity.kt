@@ -36,10 +36,10 @@ class DrawingActivity : Activity() {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 Log.i(TAG, "Blocked key ${keyCodeToString(keyCode)}")
                 // Do nothing
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
     private fun keyCodeToString(action: Int): String {
