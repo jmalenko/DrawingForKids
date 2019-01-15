@@ -13,6 +13,7 @@
             android:name="cz.jaro.drawing.DrawingActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme">
             <intent-filter>

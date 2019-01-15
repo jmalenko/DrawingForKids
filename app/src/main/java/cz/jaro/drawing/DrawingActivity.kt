@@ -8,7 +8,7 @@ import android.view.View
 
 /**
  * An activity that prevents interaction with outside of the app. Specifically:
- * - Fullscreen activity (sticky immersive mode)
+ * - Fullscreen activity (sticky immersive mode), single instance
  * - Contain only the drawing view
  * - Prevent screen rotation
  * - Prevent volume buttons, back button
