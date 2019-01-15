@@ -56,7 +56,9 @@ class MyCurve(context: Context) {
     }
 
     companion object {
-        const val STROKE_WIDTH_MM = 12f // 12 mm is just slightly bigger than the adults fingertip
+        // 6 mm is ok for kids
+        // 12 mm is just slightly bigger than an adult fingertip
+        const val STROKE_WIDTH_MM = 6f
 
         val colors = arrayOf(
                 // Grays
