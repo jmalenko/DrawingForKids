@@ -1,6 +1,8 @@
 package cz.jaro.drawing
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -11,7 +13,7 @@ import android.view.View
  * - Fullscreen activity (sticky immersive mode), single instance
  * - Contain only the drawing view
  * - Prevent screen rotation
- * - Prevent volume buttons, back button
+ * - Prevent volume buttons, back button, apps button
  */
 class DrawingActivity : Activity() {
 
@@ -27,6 +29,14 @@ class DrawingActivity : Activity() {
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        Log.i(TAG, "Blocked key APPS")
+        val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        activityManager.moveTaskToFront(taskId, 0)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
