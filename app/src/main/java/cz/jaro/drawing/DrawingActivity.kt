@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import java.util.*
 
 /**
  * An activity that prevents interaction with outside of the app. Specifically:
@@ -24,6 +25,7 @@ import android.view.WindowManager
  * - Keep screen on
  * - Prevent volume buttons, back button, apps button
  * - A notification exists during the life of the activity
+ * - Bring the app to front regularly every 3 seconds
  *
  * The activity can be quit (only) byt the following
  * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen immersive mode), 2. press the Quit action in the notification
@@ -33,6 +35,9 @@ class DrawingActivity : Activity() {
 
     private val tag = DrawingActivity::class.java.name
 
+    private var alarmManager: AlarmManager? = null
+    private lateinit var keeperIntent: PendingIntent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,33 +46,55 @@ class DrawingActivity : Activity() {
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        // Listen for intents from the receivers
-        val filter = IntentFilter(NotificationReceiver.ACTION_QUIT)
+        // Listen for intents
+        val filter = IntentFilter(ACTION_QUIT)
+        filter.addAction(ACTION_KEEP)
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
-        localBroadcastManager.registerReceiver(quitReceiver, filter)
+        localBroadcastManager.registerReceiver(receiver, filter)
 
         // Create notification
         createNotification()
+
+        // Start keeper
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        registerKeeper()
     }
 
     override fun onResume() {
         super.onResume()
 
         // Fullscreen - sticky immersive mode
-        // This is intentionally here to prevent status bar from appearing in certain sutations.
+        // This is intentionally here to prevent status bar from appearing in certain situations.
         // Specifically without this, the status bar would appear after 1. leaving and returning to the app (but this could be solved by entering the immersive
         // mode again in onWindowFocusChanged() ) and 2. after pressing power button (to turn off the screen) and pressing the power button again (to return to
-        // the app, possibly with unlocking) the statusbar was visible.
+        // the app, possibly with unlocking) the status bar was visible.
         window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        Log.v(tag, "onNewIntent() action=${intent?.action}")
+
+        if (intent != null) {
+            when (intent.action) {
+                DrawingActivity.ACTION_KEEP -> {
+                    // Register keeper for next period
+                    registerKeeper()
+                }
+                else -> {
+                    super.onNewIntent(intent)
+                }
+            }
+        }
+    }
+
     override fun onPause() {
         super.onPause()
 
-        Log.i(tag, "Trying to block key Apps (if it was pressed, but this also called on Home key press)")
+        // This immediately returns to the app after pressing the Recent Apps key
+        // However, this method is also called when 1. the Home key is pressed or when 2. system alarm is registered (for keeper). In these instances the following code has no effect.
         val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         activityManager.moveTaskToFront(taskId, 0)
     }
@@ -75,10 +102,12 @@ class DrawingActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        cancelKeeper()
+
         cancelNotification()
 
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
-        localBroadcastManager.unregisterReceiver(quitReceiver)
+        localBroadcastManager.unregisterReceiver(receiver)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -96,6 +125,28 @@ class DrawingActivity : Activity() {
         }
     }
 
+    private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Log.v(tag, "onReceive() action=${intent.action}")
+
+            when (intent.action) {
+                ACTION_QUIT -> {
+                    Log.i(tag, "Quiting")
+                    finish()
+                }
+                // ACTION_KEEP was handled in PublicReceiver
+                else -> {
+                    throw IllegalArgumentException("Unexpected argument ${intent.action}")
+                }
+            }
+        }
+    }
+
+    /*
+     * Notification - allows quiting the app
+     * =====================================
+     */
+
     @SuppressLint("PrivateResource")
     private fun createNotification() {
         createNotificationChannel()
@@ -103,8 +154,8 @@ class DrawingActivity : Activity() {
         val intent = Intent(this, DrawingActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
-        val quitIntent = Intent(this, NotificationReceiver::class.java).apply {
-            action = NotificationReceiver.ACTION_QUIT
+        val quitIntent = Intent(this, PublicReceiver::class.java).apply {
+            action = ACTION_QUIT
         }
         val quitPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, quitIntent, 0)
 
@@ -150,15 +201,60 @@ class DrawingActivity : Activity() {
         }
     }
 
-    private val quitReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            finish()
+    /*
+     * Keeper - brings the app to front
+     * ================================
+     */
+
+    private fun registerKeeper() {
+        val now = GregorianCalendar()
+        val target = now.clone() as Calendar
+        target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC)
+
+        val context = this
+        keeperIntent = Intent(context, PublicReceiver::class.java).let { intent ->
+            intent.action = ACTION_KEEP
+            PendingIntent.getBroadcast(context, 0, intent, 0)
+        }
+
+        if (alarmManager != null) {
+            Log.d(tag, "Registering keeper")
+            setSystemAlarm(alarmManager!!, target, keeperIntent)
+        } else {
+            Log.w(tag, "Cannot register keeper")
+        }
+    }
+
+    private fun cancelKeeper() {
+        Log.i(tag, "Cancelling keeper")
+        keeperIntent.cancel()
+    }
+
+    /**
+     * Register system alarm that works reliably - triggers on a specific time, regardless the Android version, and whether the device is asleep (in low-power
+     * idle mode).
+     *
+     * @param alarmManager AlarmManager
+     * @param time         Alarm time
+     * @param intent       Intent to run on alarm time
+     */
+    private fun setSystemAlarm(alarmManager: AlarmManager, time: Calendar, intent: PendingIntent) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
+        } else if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
         }
     }
 
     companion object {
-        const val CHANNEL_ID: String = "MAIN_NOTIFICATION"
-        const val NOTIFICATION_MAIN_ID: Int = 0
+        const val CHANNEL_ID = "MAIN_NOTIFICATION"
+        const val NOTIFICATION_MAIN_ID = 0
+        const val KEEPER_INTERVAL_SEC = 3
+
+        const val ACTION_QUIT = "ACTION_QUIT"
+        const val ACTION_KEEP = "ACTION_KEEP"
     }
 
 }
