@@ -8,10 +8,10 @@ import android.util.Log
 
 class NotificationReceiver : BroadcastReceiver() {
 
-    private val TAG = NotificationReceiver::class.java.name
+    private val tag = NotificationReceiver::class.java.name
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.e(TAG, "onReceive() action=${intent.action}")
+        Log.v(tag, "onReceive() action=${intent.action}")
         val action = intent.action
 
         when (action) {
