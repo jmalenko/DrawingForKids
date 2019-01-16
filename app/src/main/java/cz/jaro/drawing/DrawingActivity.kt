@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.WindowManager.LayoutParams
 import java.util.*
 
 /**
@@ -22,9 +23,10 @@ import java.util.*
  * - Fullscreen activity (sticky immersive mode), single instance
  * - Contain only the drawing view
  * - Prevent screen rotation
- * - Keep screen on
- * - Prevent volume buttons, back button, apps button
- * - A notification exists during the life of the activity
+ * - Keep screen on (but user can turn it off by pressing power button)
+ * - If the screen is turned off by pressing the power button, then 1. turn the screen on (unreliable based on testing) and 2. don't require password/PIN (reliable after pressing the power button again)
+ * - Prevent all keys/buttons, including Volume Up/Down, Back, Recent Apps
+ * - A notification exists during the life of the activity - for quitting the app
  * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
  *
  * The activity can be quit (only) byt the following
@@ -33,7 +35,7 @@ import java.util.*
  *
  * What is not prevented:
  * - The status bar and navigation bar cannot be removed. The interaction is minimized by sticky immersive mode and blocking the Apps and Back (not Home)
- *   buttons in navigation bar
+ *   buttons in navigation bar.
  * - Power button. This includes both short press (to turn off the screen) and long press with menu to power off the phone.
  */
 class DrawingActivity : Activity() {
@@ -43,6 +45,8 @@ class DrawingActivity : Activity() {
     private var alarmManager: AlarmManager? = null
     private lateinit var keeperIntent: PendingIntent
 
+    private lateinit var keyguardLock: KeyguardManager.KeyguardLock
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,7 +55,10 @@ class DrawingActivity : Activity() {
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        // Listen for intents
+        // Disable keyguard - to NOT require password on lockscreen (and generally omit the lockscreen)
+        disableKeyguard()
+
+        // Listen for local intents
         val filter = IntentFilter(ACTION_QUIT)
         filter.addAction(ACTION_KEEP)
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
@@ -85,6 +92,13 @@ class DrawingActivity : Activity() {
         if (intent != null) {
             when (intent.action) {
                 DrawingActivity.ACTION_KEEP -> {
+                    // Try to dismiss keyguard (if the device is locked).
+                    // Note: Works if keyguard is not secure or the device is currently in a trusted state.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // TODO This Block is untested
+                        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                        keyguardManager.requestDismissKeyguard(this, null)
+                    }
+
                     // Register keeper for next period
                     registerKeeper()
                 }
@@ -113,6 +127,8 @@ class DrawingActivity : Activity() {
 
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         localBroadcastManager.unregisterReceiver(receiver)
+
+        enableKeyguard()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -251,6 +267,36 @@ class DrawingActivity : Activity() {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
         }
+    }
+
+    /*
+     * Disable keyguard - to NOT require password on lockscreen (and generally omit the lockscreen)
+     * ============================================================================================
+     */
+
+    private fun disableKeyguard() {
+        // TODO Requirement: When the power button is pressed (and screen turns off), then turn on the screen (without the keyguard). However, testing on Samsung Galaxy S7 shows that this works only once; afterwards the screen must be turned on by pressing the power button.
+
+        // Make sure the activity is visible after the screen is turned on when the lockscreen is up. Also required to turn screen on when
+        // KeyguardManager.requestDismissKeyguard(...) is called.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            // TODO This block is untested
+            setTurnScreenOn(true)
+            setShowWhenLocked(true)
+        } else {
+            window.addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            window.addFlags(LayoutParams.FLAG_TURN_SCREEN_ON)
+        }
+
+        // Disable keyguard
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE)
+        keyguardLock.disableKeyguard()
+    }
+
+    private fun enableKeyguard() {
+        keyguardLock.reenableKeyguard()
+        // Note that the user may need to enter password/PIN after exiting from the app
     }
 
     companion object {
