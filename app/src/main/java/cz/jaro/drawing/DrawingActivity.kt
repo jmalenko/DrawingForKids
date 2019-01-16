@@ -38,9 +38,6 @@ class DrawingActivity : Activity() {
 
         setContentView(R.layout.activity_drawing)
 
-        // Fullscreen - sticky immersive mode
-        enableImmersiveMode()
-
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -53,15 +50,14 @@ class DrawingActivity : Activity() {
         createNotification()
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
+    override fun onResume() {
+        super.onResume()
 
-        if (hasFocus) {
-            enableImmersiveMode()
-        }
-    }
-
-    private fun enableImmersiveMode() {
+        // Fullscreen - sticky immersive mode
+        // This is intentionally here to prevent status bar from appearing in certain sutations.
+        // Specifically without this, the status bar would appear after 1. leaving and returning to the app (but this could be solved by entering the immersive
+        // mode again in onWindowFocusChanged() ) and 2. after pressing power button (to turn off the screen) and pressing the power button again (to return to
+        // the app, possibly with unlocking) the statusbar was visible.
         window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
