@@ -101,7 +101,7 @@ class DrawingActivity : Activity() {
     private fun keyCodeToString(action: Int): String {
         return when (action) {
             KeyEvent.KEYCODE_BACK -> "Back"
-            KeyEvent.KEYCODE_VOLUME_UP -> "Volune up"
+            KeyEvent.KEYCODE_VOLUME_UP -> "Volume up"
             KeyEvent.KEYCODE_VOLUME_DOWN -> "Volume down"
             else -> "?"
         }
