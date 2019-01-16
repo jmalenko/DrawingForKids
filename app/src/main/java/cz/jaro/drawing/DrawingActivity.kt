@@ -25,11 +25,16 @@ import java.util.*
  * - Keep screen on
  * - Prevent volume buttons, back button, apps button
  * - A notification exists during the life of the activity
- * - Bring the app to front regularly every 3 seconds
+ * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
  *
  * The activity can be quit (only) byt the following
- * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen immersive mode), 2. press the Quit action in the notification
+ * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen sticky immersive mode), 2. press the Quit action in the notification
  * - 1. Press Home key, 2. press Recent Apps key, 3. swipe the app
+ *
+ * What is not prevented:
+ * - The status bar and navigation bar cannot be removed. The interaction is minimized by sticky immersive mode and blocking the Apps and Back (not Home)
+ *   buttons in navigation bar
+ * - Power button. This includes both short press (to turn off the screen) and long press with menu to power off the phone.
  */
 class DrawingActivity : Activity() {
 
