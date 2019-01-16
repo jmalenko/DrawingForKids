@@ -33,7 +33,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
-        Log.d(tag, "onTouchEvent() action=${actionToString(action)}, action=$action, pointerCount=${event.pointerCount}")
+        Log.v(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}")
 
         for (pointerIndex in 0 until event.pointerCount) {
             val pointerId = event.getPointerId(pointerIndex)
