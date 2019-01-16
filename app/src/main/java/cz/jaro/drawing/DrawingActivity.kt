@@ -23,7 +23,7 @@ import android.view.WindowManager
  * - Prevent screen rotation
  * - Keep screen on
  * - Prevent volume buttons, back button, apps button
- * - A notification exists during the live of the activity
+ * - A notification exists during the life of the activity
  *
  * The activity can be quit (only) byt the following
  * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen immersive mode), 2. press the Quit action in the notification
