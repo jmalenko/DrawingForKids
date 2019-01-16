@@ -12,7 +12,7 @@ import android.widget.ImageView
 
 class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, attrs) {
 
-    private val TAG = DrawingView::class.java.name
+    private val tag = DrawingView::class.java.name
 
     private var bitmap: Bitmap? = null
     private val canvas: Canvas = Canvas()
@@ -33,7 +33,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
-        Log.d(TAG, "onTouchEvent() action=${actionToString(action)}, action=$action, pointerCount=${event.pointerCount}")
+        Log.d(tag, "onTouchEvent() action=${actionToString(action)}, action=$action, pointerCount=${event.pointerCount}")
 
         for (i in 0 until event.pointerCount) {
             val pointerId = event.getPointerId(i)

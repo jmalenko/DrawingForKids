@@ -31,7 +31,7 @@ import android.view.WindowManager
  */
 class DrawingActivity : Activity() {
 
-    private val TAG = DrawingActivity::class.java.name
+    private val tag = DrawingActivity::class.java.name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +71,7 @@ class DrawingActivity : Activity() {
     override fun onPause() {
         super.onPause()
 
-        Log.i(TAG, "Blocked key APPS")
+        Log.i(tag, "Blocked key APPS")
         val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         activityManager.moveTaskToFront(taskId, 0)
     }
@@ -90,7 +90,7 @@ class DrawingActivity : Activity() {
             KeyEvent.KEYCODE_BACK,
             KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                Log.i(TAG, "Blocked key ${keyCodeToString(keyCode)}")
+                Log.i(tag, "Blocked key ${keyCodeToString(keyCode)}")
                 // Do nothing
                 return true
             }
