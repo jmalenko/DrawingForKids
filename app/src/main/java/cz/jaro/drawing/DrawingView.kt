@@ -35,13 +35,13 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
         val action = event.actionMasked
         Log.d(tag, "onTouchEvent() action=${actionToString(action)}, action=$action, pointerCount=${event.pointerCount}")
 
-        for (i in 0 until event.pointerCount) {
-            val pointerId = event.getPointerId(i)
+        for (pointerIndex in 0 until event.pointerCount) {
+            val pointerId = event.getPointerId(pointerIndex)
 
             when (action) {
                 MotionEvent.ACTION_DOWN,
                 MotionEvent.ACTION_POINTER_DOWN -> {
-                    val point = PointF(event.getX(pointerId), event.getY(pointerId))
+                    val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
 
                     val curve = MyCurve(context)
                     curve.addPoint(point)
@@ -51,7 +51,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
                     invalidate()
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val point = PointF(event.getX(pointerId), event.getY(pointerId))
+                    val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
 
                     val curve = curves[pointerId]
                     if (curve != null) {
