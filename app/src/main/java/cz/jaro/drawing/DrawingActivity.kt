@@ -71,7 +71,7 @@ class DrawingActivity : Activity() {
     override fun onPause() {
         super.onPause()
 
-        Log.i(tag, "Blocked key APPS")
+        Log.i(tag, "Trying to block key Apps (if it was pressed, but this also called on Home key press)")
         val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         activityManager.moveTaskToFront(taskId, 0)
     }
