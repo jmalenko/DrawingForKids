@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Drawing for Kids 0–3Y</string>
 
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="channel_name">The main app channel</string>
+    <string name="channel_description">Channel description</string>
+
+    <string name="notification_main_text">Remaining in the app</string>
+    <string name="notification_main_action_quit">Quit</string>
 </resources>
