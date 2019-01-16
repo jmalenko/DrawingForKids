@@ -86,16 +86,9 @@ class DrawingActivity : Activity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_BACK,
-            KeyEvent.KEYCODE_VOLUME_UP,
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                Log.i(tag, "Blocked key ${keyCodeToString(keyCode)}")
-                // Do nothing
-                return true
-            }
-        }
-        return false
+        // Block all keys, including keyCode = KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN
+        Log.i(tag, "Blocked key ${keyCodeToString(keyCode)} (keyCode=$keyCode)")
+        return true
     }
 
     private fun keyCodeToString(action: Int): String {
