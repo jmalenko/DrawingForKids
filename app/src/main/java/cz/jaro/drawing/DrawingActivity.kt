@@ -155,7 +155,7 @@ class DrawingActivity : Activity() {
                     Log.i(tag, "Quiting")
                     finish()
                 }
-                // ACTION_KEEP was handled in PublicReceiver
+                // ACTION_KEEP was handled in PublicReceiver and onNewIntent(Intent?)
                 else -> {
                     throw IllegalArgumentException("Unexpected argument ${intent.action}")
                 }
