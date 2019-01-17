@@ -2,7 +2,7 @@
 <resources>
     <!-- Some selected colors from Natural Color System (NCS 1950) -->
 
-    <!-- Grays -->
+    <!-- Grays S_.000_N -->
 
     <color name="S_1000_N">#E1E0DE</color>
     <!-- S 1000-N -->
@@ -49,7 +49,7 @@
     <!-- Hex: #191A1B -->
     <!-- LRV:  Approx. 1 -->
 
-    <!-- Basic colors - light -->
+    <!-- Basic colors S_1020_. - light -->
 
     <color name="S_1020_B">#ACD0DE</color>
     <!-- S 1020-B -->
@@ -87,7 +87,7 @@
     <!-- Hex: #EAD9A3 -->
     <!-- LRV:  Approx. 71 -->
 
-    <!-- Basic colors - mid -->
+    <!-- Basic colors S_1040_. - mid -->
 
     <color name="S_1040_B">#6BB8D6</color>
     <!-- S 1040-B -->
@@ -125,7 +125,7 @@
     <!-- Hex: #F0D577 -->
     <!-- LRV:  Approx. 68 -->
 
-    <!-- Basic colors - strong -->
+    <!-- Basic colors S_1060_. - strong -->
 
     <color name="S_1060_B">#00A3D7</color>
     <!-- S 1060-B -->
@@ -163,7 +163,7 @@
     <!-- Hex: #F2CD40 -->
     <!-- LRV:  Approx. 64 -->
 
-    <!-- Basic colors - strongest -->
+    <!-- Basic colors S_1080_* - strongest -->
 
     <color name="S_1080_R">#C40A34</color>
     <!-- S 1080-R -->
@@ -192,7 +192,7 @@
     <!-- Hex: #5CAF00 -->
     <!-- LRV:  Approx. 33 -->
 
-    <!-- Combinations - light -->
+    <!-- Combinations S_1020_.50. - light -->
 
     <color name="S_1020_B50G">#A6D4D2</color>
     <!-- S 1020-B50G -->
@@ -230,7 +230,7 @@
     <!-- Hex: #D2C2D9 -->
     <!-- LRV:  Approx. 57 -->
 
-    <!-- Combinations - mid -->
+    <!-- Combinations S_1040_.50. - mid -->
 
     <color name="S_1040_B50G">#5EC7C6</color>
     <!-- S 1040-B50G -->
@@ -268,7 +268,7 @@
     <!-- Hex: #C8A2D7 -->
     <!-- LRV:  Approx. 43 -->
 
-    <!-- Combinations - strong -->
+    <!-- Combinations S_1060_.50. - strong -->
 
     <color name="S_1060_G50Y">#B0C84C</color>
     <!-- S 1060-G50Y -->
@@ -288,5 +288,194 @@
     <!-- Hex: #F3884B -->
     <!-- LRV:  Approx. 38 -->
 
+    <!-- S_4020_. - light -->
+
+    <color name="S_4020_B">#628496</color>
+    <!-- S 4020-B -->
+    <!-- L53.11a-9.24b-13.44 -->
+    <!-- H 235  L 53  C 16 -->
+    <!-- CMYK:  35; 12; 0; 41 -->
+    <!-- sRGB: 98; 132; 150 -->
+    <!-- Hex: #628496 -->
+    <!-- LRV:  Approx. 21 -->
+
+    <color name="S_4020_G">#668E7B</color>
+    <!-- S 4020-G -->
+    <!-- L55.66a-17.38b5.28 -->
+    <!-- H 163  L 56  C 18 -->
+    <!-- CMYK:  28; 0; 13; 44 -->
+    <!-- sRGB: 102; 142; 123 -->
+    <!-- Hex: #668E7B -->
+    <!-- LRV:  Approx. 24 -->
+
+    <color name="S_4020_R">#9E7374</color>
+    <!-- S 4020-R -->
+    <!-- L52.92a17.8b6.64 -->
+    <!-- H 20  L 53  C 19 -->
+    <!-- CMYK:  0; 27; 27; 38 -->
+    <!-- sRGB: 158; 115; 116 -->
+    <!-- Hex: #9E7374 -->
+    <!-- LRV:  Approx. 21 -->
+
+    <color name="S_4020_Y">#9F8D63</color>
+    <!-- S 4020-Y -->
+    <!-- L59.38a2.7b25.1 -->
+    <!-- H 84  L 59  C 25 -->
+    <!-- CMYK:  0; 11; 38; 38 -->
+    <!-- sRGB: 159; 141; 99 -->
+    <!-- Hex: #9F8D63 -->
+    <!-- LRV:  Approx. 27 -->
+
+    <!-- S_4050_. - strong -->
+
+    <color name="S_4050_B">#00618A</color>
+    <!-- S 4050-B -->
+    <!-- L36.71a-19.44b-32.14 -->
+    <!-- H 239  L 37  C 38 -->
+    <!-- CMYK:  100; 30; 0; 46 -->
+    <!-- sRGB: 0; 97; 138 -->
+    <!-- Hex: #00618A -->
+    <!-- LRV:  Approx. 9 -->
+
+    <color name="S_4050_G">#006B47</color>
+    <!-- S 4050-G -->
+    <!-- L38.64a-41.02b11.43 -->
+    <!-- H 164  L 39  C 43 -->
+    <!-- CMYK:  100; 0; 34; 58 -->
+    <!-- sRGB: 0; 107; 71 -->
+    <!-- Hex: #006B47 -->
+    <!-- LRV:  Approx. 10 -->
+
+    <color name="S_4050_R">#8A2B33</color>
+    <!-- S 4050-R -->
+    <!-- L33.01a41.09b18.83 -->
+    <!-- H 25  L 33  C 45 -->
+    <!-- CMYK:  0; 69; 63; 46 -->
+    <!-- sRGB: 138; 43; 51 -->
+    <!-- Hex: #8A2B33 -->
+    <!-- LRV:  Approx. 8 -->
+
+    <color name="S_4050_Y">#977A2B</color>
+    <!-- S 4050-Y -->
+    <!-- L53.07a5.26b45.83 -->
+    <!-- H 83  L 53  C 46 -->
+    <!-- CMYK:  0; 19; 72; 41 -->
+    <!-- sRGB: 151; 122; 43 -->
+    <!-- Hex: #977A2B -->
+    <!-- LRV:  Approx. 21 -->
+
+    <!-- S_4055_* - strongest -->
+
+    <color name="S_4055_B">#005583</color>
+    <!-- S 4055-B -->
+    <!-- L32a-18.88b-35.66 -->
+    <!-- H 242  L 32  C 40 -->
+    <!-- CMYK:  100; 35; 0; 49 -->
+    <!-- sRGB: 0; 85; 131 -->
+    <!-- Hex: #005583 -->
+    <!-- LRV:  Approx. 7 -->
+
+    <color name="S_4055_B40G">#00636A</color>
+    <!-- S 4055-B40G -->
+    <!-- L35.04a-41.19b-15.22 -->
+    <!-- H 200  L 35  C 44 -->
+    <!-- CMYK:  100; 7; 0; 58 -->
+    <!-- sRGB: 0; 99; 106 -->
+    <!-- Hex: #00636A -->
+    <!-- LRV:  Approx. 9 -->
+
+    <color name="S_4055_R70B">#222E7C</color>
+    <!-- S 4055-R70B -->
+    <!-- L22.12a17.51b-46.73 -->
+    <!-- H 291  L 22  C 50 -->
+    <!-- CMYK:  73; 63; 0; 51 -->
+    <!-- sRGB: 34; 46; 124 -->
+    <!-- Hex: #222E7C -->
+    <!-- LRV:  Approx. 4 -->
+
+    <color name="S_4055_Y10R">#A37622</color>
+    <!-- S 4055-Y10R -->
+    <!-- L53.07a12.81b50.22 -->
+    <!-- H 76  L 53  C 52 -->
+    <!-- CMYK:  0; 28; 79; 36 -->
+    <!-- sRGB: 163; 118; 34 -->
+    <!-- Hex: #A37622 -->
+    <!-- LRV:  Approx. 21 -->
+
+    <!-- Combinations S_4020...- light -->
+
+    <color name="S_4020_B50G">#668E8E</color>
+    <!-- S 4020-B50G -->
+    <!-- L56.2a-14.61b-4.71 -->
+    <!-- H 198  L 56  C 15 -->
+    <!-- CMYK:  28; 0; 0; 44 -->
+    <!-- sRGB: 102; 142; 142 -->
+    <!-- Hex: #668E8E -->
+    <!-- LRV:  Approx. 24 -->
+
+    <color name="S_4020_G50Y">#8A916A</color>
+    <!-- S 4020-G50Y -->
+    <!-- L58.74a-7.75b19.51 -->
+    <!-- H 112  L 59  C 21 -->
+    <!-- CMYK:  5; 0; 27; 43 -->
+    <!-- sRGB: 138; 145; 106 -->
+    <!-- Hex: #8A916A -->
+    <!-- LRV:  Approx. 27 -->
+
+    <color name="S_4020_Y50R">#AA7E66</color>
+    <!-- S 4020-Y50R -->
+    <!-- L56.87a14.94b20.48 -->
+    <!-- H 54  L 57  C 25 -->
+    <!-- CMYK:  0; 26; 40; 33 -->
+    <!-- sRGB: 170; 126; 102 -->
+    <!-- Hex: #AA7E66 -->
+    <!-- LRV:  Approx. 25 -->
+
+    <color name="S_4020_R50B">#8F7D95</color>
+    <!-- S 4020-R50B -->
+    <!-- L54.79a10.5b-10.21 -->
+    <!-- H 316  L 55  C 15 -->
+    <!-- CMYK:  4; 16; 0; 42 -->
+    <!-- sRGB: 143; 125; 149 -->
+    <!-- Hex: #8F7D95 -->
+    <!-- LRV:  Approx. 23 -->
+
+    <!-- S_4020...- light -->
+
+    <color name="S_4050_B50G">#006B6C</color>
+    <!-- S 4050-B50G -->
+    <!-- L38.74a-38.96b-11.02 -->
+    <!-- H 196  L 39  C 40 -->
+    <!-- CMYK:  100; 1; 0; 58 -->
+    <!-- sRGB: 0; 107; 108 -->
+    <!-- Hex: #006B6C -->
+    <!-- LRV:  Approx. 11 -->
+
+    <color name="S_4050_G50Y">#6C792A</color>
+    <!-- S 4050-G50Y -->
+    <!-- L48.45a-13.97b40.1 -->
+    <!-- H 109  L 48  C 42 -->
+    <!-- CMYK:  11; 0; 65; 53 -->
+    <!-- sRGB: 108; 121; 42 -->
+    <!-- Hex: #6C792A -->
+    <!-- LRV:  Approx. 17 -->
+
+    <color name="S_4050_Y50R">#A7633E</color>
+    <!-- S 4040-Y50R -->
+    <!-- L49.41a25.45b33.23 -->
+    <!-- H 53  L 49  C 42 -->
+    <!-- CMYK:  0; 41; 63; 35 -->
+    <!-- sRGB: 167; 99; 62 -->
+    <!-- Hex: #A7633E -->
+    <!-- LRV:  Approx. 18 -->
+
+    <color name="S_4050_R50B">#6A2C6D</color>
+    <!-- S 4050-R50B -->
+    <!-- L29.27a35.29b-24.98 -->
+    <!-- H 325  L 29  C 43 -->
+    <!-- CMYK:  3; 60; 0; 57 -->
+    <!-- sRGB: 106; 44; 109 -->
+    <!-- Hex: #6A2C6D -->
+    <!-- LRV:  Approx. 6 -->
 
 </resources>
