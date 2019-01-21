@@ -522,20 +522,6 @@ class DrawingActivity : Activity() {
         return state == 3
     }
 
-    /**
-     * Get the angle difference between two vectors.
-     *
-     * @return The angle between vectors in radians
-     */
-    private fun angleBetweenVectors(a: FloatArray, b: FloatArray): Float {
-        // Source: https://math.stackexchange.com/a/2254379
-        val innerProduct = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-        val normA = Math.sqrt((a[0] * a[0] + a[1] * a[1] + a[2] * a[2]).toDouble())
-        val normB = Math.sqrt((b[0] * b[0] + b[1] * b[1] + b[2] * b[2]).toDouble())
-
-        return Math.acos(innerProduct / (normA * normB)).toFloat()
-    }
-
     companion object {
         const val CHANNEL_ID = "MAIN_NOTIFICATION"
         const val NOTIFICATION_MAIN_ID = 0
