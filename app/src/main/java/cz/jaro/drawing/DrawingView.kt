@@ -15,7 +15,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
 
     private val tag = DrawingView::class.java.name
 
-    private var bitmap: Bitmap? = null
+    internal var bitmap: Bitmap? = null
     private val canvas: Canvas = Canvas()
 
     private val curves: MutableMap<Int, MyCurve> = HashMap() // Key is pointerId

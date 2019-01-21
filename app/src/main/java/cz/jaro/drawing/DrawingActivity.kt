@@ -6,12 +6,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.LocalBroadcastManager
@@ -22,6 +24,10 @@ import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import cz.jaro.drawing.DrawingActivity.Companion.vectorInRadToStringInDeg
 import kotlinx.android.synthetic.main.activity_drawing.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.PI
@@ -37,6 +43,7 @@ import kotlin.math.PI
  * - Clear the image if the orientation changes by more than 70 degrees (and back) in last 3 seconds
  * - A notification exists during the life of the activity - for quitting the app
  * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
+ * - Save the image on quit and before it is cleared
  *
  * The activity can be quit (only) byt the following
  * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen sticky immersive mode), 2. press the Quit action in the notification
@@ -67,6 +74,8 @@ class DrawingActivity : Activity() {
 
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Start components
 
         // Disable keyguard - to NOT require password on lockscreen (and generally omit the lockscreen)
         disableKeyguard()
@@ -137,6 +146,10 @@ class DrawingActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        saveDrawing()
+
+        // Stop components (in reverse order compared to onCreate() )
+
         stopOrientationSensor()
 
         cancelKeeper()
@@ -179,6 +192,52 @@ class DrawingActivity : Activity() {
                 }
             }
         }
+    }
+
+    fun saveDrawing() {
+        // Get the bitmap
+        val bitmap = canvas.bitmap
+        if (bitmap == null) {
+            Log.e(tag, "Cannot save image because bitmap is null")
+            return
+        }
+
+        // Construct the file name
+        // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
+        val imageTime = System.currentTimeMillis()
+        val imageDate = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date(imageTime))
+        val imageFileName = String.format(DRAWING_FILE_NAME_TEMPLATE, imageDate)
+
+        // Save to external storage
+        if (isExternalStorageWritable()) {
+            val picturesDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), DRAWING_DIR_NAME)
+
+            // Create the directory (relevant only the first time)
+            if (!picturesDir.exists()) {
+                picturesDir.mkdirs()
+            }
+
+            val imageFilePath = File(picturesDir, imageFileName).getAbsolutePath()
+
+            // Save bitmap to file
+            try {
+                FileOutputStream(imageFilePath).use({ out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                })
+                Log.i(tag, "Image saved to $imageFilePath")
+            } catch (e: IOException) {
+                Log.w(tag, "Cannot save image to $imageFilePath", e)
+            }
+        } else {
+            Log.e(tag, "Cannot save image because the external storage is not writable")
+        }
+    }
+
+    fun isExternalStorageWritable(): Boolean {
+        val state = Environment.getExternalStorageState()
+        return if (Environment.MEDIA_MOUNTED == state) {
+            true
+        } else false
     }
 
     /*
@@ -352,6 +411,8 @@ class DrawingActivity : Activity() {
                 if (gesturePerformed()) {
                     Log.i(tag, "Cleaning the image")
 
+                    saveDrawing()
+
                     // Clear the canvas
                     canvas.clear()
 
@@ -486,6 +547,9 @@ class DrawingActivity : Activity() {
 
         const val ACTION_QUIT = "ACTION_QUIT"
         const val ACTION_KEEP = "ACTION_KEEP"
+
+        const val DRAWING_DIR_NAME = "DrawingForKids"
+        const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
 
         fun vectorInRadToStringInDeg(v: FloatArray): String {
             return "[${Math.round(Math.toDegrees(v[0].toDouble()))}, ${Math.round(Math.toDegrees(v[1].toDouble()))}, ${Math.round(Math.toDegrees(v[2].toDouble()))}]"
