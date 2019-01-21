@@ -493,6 +493,7 @@ class DrawingActivity : Activity() {
         Second, we are looking for an orientation that is different by less than SENSOR_ANGLE_NEAR_RAD from the current orientation.
         */
         val orientations1 = sensorRecords[sensorRecords.size - 1].orientations
+        Log.v(tag, "From ${vectorInRadToStringInDeg(orientations1)}")
 
         var state = 1
         loop@ for (i in sensorRecords.size - 2 downTo 0) {
@@ -503,15 +504,18 @@ class DrawingActivity : Activity() {
                                     Math.pow(orientations1[1].toDouble() - orientations2[1], 2.0) +
                                     Math.pow(orientations1[2].toDouble() - orientations2[2], 2.0)
                     )
+            Log.v(tag, "To ${vectorInRadToStringInDeg(orientations2)} is ${Math.round(Math.toDegrees(angle))}")
 
             when (state) {
                 1 -> {
                     if (SENSOR_ANGLE_OUT_RAD < angle) {
+                        Log.d(tag, "Big difference found")
                         state++
                     }
                 }
                 2 -> {
                     if (angle < SENSOR_ANGLE_NEAR_RAD) {
+                        Log.d(tag, "Small difference found")
                         state++
                         break@loop
                     }
