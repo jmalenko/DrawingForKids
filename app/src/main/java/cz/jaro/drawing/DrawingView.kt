@@ -3,6 +3,7 @@ package cz.jaro.drawing
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.PointF
 import android.util.AttributeSet
 import android.util.Log
@@ -83,6 +84,13 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
         // Draw open curves
         for (curve: MyCurve in curves.values)
             curve.draw(canvas)
+    }
+
+    fun clear() {
+        if (bitmap != null) {
+            bitmap!!.eraseColor(Color.TRANSPARENT)
+            invalidate()
+        }
     }
 
     /**
