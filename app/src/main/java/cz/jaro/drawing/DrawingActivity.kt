@@ -383,7 +383,6 @@ class DrawingActivity : Activity() {
 
     private fun startOrientationSensor() {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-//        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
         if (sensor == null) {
@@ -460,7 +459,7 @@ class DrawingActivity : Activity() {
         return orientations
     }
 
-    private fun addEvent(sensorEvent: SensorEvent): FloatArray {
+    private fun addEvent(sensorEvent: SensorEvent) {
         // Add the event to the list
         val timestamp = sensorEvent.timestamp
         val orientations = rotationSensorValuesToOrientations(sensorEvent.values)
@@ -477,8 +476,6 @@ class DrawingActivity : Activity() {
         // TODO ArrayList is not effective at removing first N elements. Choose another data structure. Also, we can discard subsequent record that are close.
         val subListToRemove = sensorRecords.subList(0, firstRecent)
         subListToRemove.clear()
-
-        return orientations
     }
 
     /**
@@ -498,13 +495,12 @@ class DrawingActivity : Activity() {
         var state = 1
         loop@ for (i in sensorRecords.size - 2 downTo 0) {
             val orientations2 = sensorRecords[i].orientations
-            val angle =
-                    Math.sqrt(
+            val angle = Math.sqrt(
                             Math.pow(orientations1[0].toDouble() - orientations2[0], 2.0) +
                                     Math.pow(orientations1[1].toDouble() - orientations2[1], 2.0) +
                                     Math.pow(orientations1[2].toDouble() - orientations2[2], 2.0)
                     )
-            Log.v(tag, "To ${vectorInRadToStringInDeg(orientations2)} is ${Math.round(Math.toDegrees(angle))}")
+//            Log.v(tag, "To ${vectorInRadToStringInDeg(orientations2)} is ${Math.round(Math.toDegrees(angle))} deg")
 
             when (state) {
                 1 -> {
