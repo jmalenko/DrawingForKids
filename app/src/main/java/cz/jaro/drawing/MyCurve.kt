@@ -81,7 +81,7 @@ class MyCurve(context: Context) {
                 // Basic colors dark - strongest
                 R.color.S_4055_B, R.color.S_4055_B40G, R.color.S_4055_R70B, R.color.S_4055_Y10R,
                 // Combined colors dark, 2 saturation levels
-                R.color.S_4020_B50G, R.color.S_4020_G50Y, R.color.S_4020_Y50R, R.color.S_4020_R50B,
+                //R.color.S_4020_B50G, R.color.S_4020_G50Y, R.color.S_4020_Y50R, R.color.S_4020_R50B,
                 /*R.color.S_4050_B50G,*/ R.color.S_4050_G50Y, R.color.S_4050_Y50R/*, R.color.S_4050_R50B*/
         )
     }
