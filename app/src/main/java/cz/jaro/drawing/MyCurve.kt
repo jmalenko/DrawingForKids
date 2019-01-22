@@ -63,26 +63,18 @@ class MyCurve(context: Context) {
         val colors = arrayOf(
                 // Grays
                 R.color.S_1000_N, R.color.S_3000_N, R.color.S_5000_N, R.color.S_7000_N, R.color.S_9000_N,
-
-                // Basic colors light, 3 saturation levels
-                R.color.S_1020_B, R.color.S_1020_G, R.color.S_1020_R, R.color.S_1020_Y,
-                R.color.S_1040_B, R.color.S_1040_G, R.color.S_1040_R, R.color.S_1040_Y,
-                R.color.S_1060_B, R.color.S_1060_G, R.color.S_1060_R, R.color.S_1060_Y,
-                // Basic colors light - strongest
-                R.color.S_1080_R, R.color.S_1080_Y, R.color.S_1080_G30Y,
-                // Combined colors light, 3 saturation levels
-                R.color.S_1020_B50G, R.color.S_1020_G50Y, R.color.S_1020_Y50R, R.color.S_1020_R50B,
-                R.color.S_1040_B50G, R.color.S_1040_G50Y, R.color.S_1040_Y50R, R.color.S_1040_R50B,
-                R.color.S_1060_G50Y, R.color.S_1060_Y50R,
-
-                // Basic colors dark, 2 saturation levels
-                R.color.S_4020_B, R.color.S_4020_G, R.color.S_4020_R, R.color.S_4020_Y,
-                /*R.color.S_4050_B,*/ R.color.S_4050_G, R.color.S_4050_R, /*R.color.S_4050_Y,*/
-                // Basic colors dark - strongest
-                R.color.S_4055_B, R.color.S_4055_B40G, R.color.S_4055_R70B, R.color.S_4055_Y10R,
-                // Combined colors dark, 2 saturation levels
-                //R.color.S_4020_B50G, R.color.S_4020_G50Y, R.color.S_4020_Y50R, R.color.S_4020_R50B,
-                /*R.color.S_4050_B50G,*/ R.color.S_4050_G50Y, R.color.S_4050_Y50R/*, R.color.S_4050_R50B*/
+                // Basic colors
+                R.color.S_1080_R, R.color.S_1040_R,
+                R.color.S_4055_B, R.color.S_1040_B,
+                R.color.S_1080_G30Y, R.color.S_1040_G30Y,
+                R.color.S_0570_Y, R.color.S_0540_Y,
+                // Combinations
+                R.color.S_3055_R50B, R.color.S_1040_R50B,
+                R.color.S_3055_B50G, R.color.S_1040_B50G,
+                R.color.S_1075_G50Y, R.color.S_1040_G50Y,
+                R.color.S_1080_Y50R, R.color.S_1040_Y50R,
+                // Other
+                R.color.S_5040_Y30R
         )
     }
 }
