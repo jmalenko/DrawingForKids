@@ -58,9 +58,6 @@ class DrawingActivity : Activity() {
 
     private val tag = DrawingActivity::class.java.name
 
-    private var alarmManager: AlarmManager? = null
-    private lateinit var keeperIntent: PendingIntent
-
     private lateinit var keyguardLock: KeyguardManager.KeyguardLock
 
     private lateinit var sensorManager: SensorManager
@@ -109,29 +106,6 @@ class DrawingActivity : Activity() {
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        Log.v(tag, "onNewIntent() action=${intent?.action}")
-
-        if (intent != null) {
-            when (intent.action) {
-                DrawingActivity.ACTION_KEEP -> {
-                    // Try to dismiss keyguard (if the device is locked).
-                    // Note: Works if keyguard is not secure or the device is currently in a trusted state.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // TODO This Block is untested
-                        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-                        keyguardManager.requestDismissKeyguard(this, null)
-                    }
-
-                    // Register keeper for next period
-                    registerKeeper()
-                }
-                else -> {
-                    super.onNewIntent(intent)
-                }
-            }
-        }
     }
 
     override fun onPause() {
@@ -186,7 +160,7 @@ class DrawingActivity : Activity() {
                     Log.i(tag, "Quiting")
                     finish()
                 }
-                // ACTION_KEEP was handled in PublicReceiver and onNewIntent(Intent?)
+                // ACTION_KEEP was handled in PublicReceiver
                 else -> {
                     throw IllegalArgumentException("Unexpected argument ${intent.action}")
                 }
@@ -296,45 +270,12 @@ class DrawingActivity : Activity() {
      */
 
     private fun registerKeeper() {
-        val now = GregorianCalendar()
-        val target = now.clone() as Calendar
-        target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC)
-
-        val context = this
-        keeperIntent = Intent(context, PublicReceiver::class.java).let { intent ->
-            intent.action = ACTION_KEEP
-            PendingIntent.getBroadcast(context, 0, intent, 0)
-        }
-
-        if (alarmManager != null) {
-            Log.d(tag, "Registering keeper")
-            setSystemAlarm(alarmManager!!, target, keeperIntent)
-        } else {
-            Log.w(tag, "Cannot register keeper")
-        }
+        registerKeeper(tag, this)
     }
 
     private fun cancelKeeper() {
         Log.i(tag, "Cancelling keeper")
         keeperIntent.cancel()
-    }
-
-    /**
-     * Register system alarm that works reliably - triggers on a specific time, regardless the Android version, and whether the device is asleep (in low-power
-     * idle mode).
-     *
-     * @param alarmManager AlarmManager
-     * @param time         Alarm time
-     * @param intent       Intent to run on alarm time
-     */
-    private fun setSystemAlarm(alarmManager: AlarmManager, time: Calendar, intent: PendingIntent) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
-        } else if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
-        }
     }
 
     /*
@@ -528,11 +469,51 @@ class DrawingActivity : Activity() {
         const val DRAWING_DIR_NAME = "DrawingForKids"
         const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
 
+        private var alarmManager: AlarmManager? = null
+        private lateinit var keeperIntent: PendingIntent
+
+        fun registerKeeper(tag: String, context: Context) {
+            val now = GregorianCalendar()
+            val target = now.clone() as Calendar
+            target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC)
+            target.set(Calendar.MILLISECOND, 0)
+
+            val keeperIntent = Intent(context, PublicReceiver::class.java).let { intent ->
+                intent.action = ACTION_KEEP
+                PendingIntent.getBroadcast(context, 0, intent, 0)
+            }
+
+            if (alarmManager != null) {
+                Log.i(tag, "Registering keeper")
+
+                setSystemAlarm(alarmManager!!, target, keeperIntent)
+            } else {
+                Log.w(tag, "Cannot register keeper")
+            }
+        }
+
+        /**
+         * Register system alarm that works reliably - triggers on a specific time, regardless the Android version, and whether the device is asleep (in low-power
+         * idle mode).
+         *
+         * @param alarmManager AlarmManager
+         * @param time         Alarm time
+         * @param intent       Intent to run on alarm time
+         */
+        private fun setSystemAlarm(alarmManager: AlarmManager, time: Calendar, intent: PendingIntent) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
+            } else if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
+            }
+        }
+
         fun vectorInRadToStringInDeg(v: FloatArray): String {
             return "[${Math.round(Math.toDegrees(v[0].toDouble()))}, ${Math.round(Math.toDegrees(v[1].toDouble()))}, ${Math.round(Math.toDegrees(v[2].toDouble()))}]"
         }
     }
-
 }
 
 class OrientationRecord(val timestamp: Long, val orientations: FloatArray) {
