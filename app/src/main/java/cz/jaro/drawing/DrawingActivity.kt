@@ -490,7 +490,7 @@ class DrawingActivity : Activity() {
             target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC)
             target.set(Calendar.MILLISECOND, 0)
 
-            val keeperIntent = Intent(context, PublicReceiver::class.java).let { intent ->
+            keeperIntent = Intent(context, PublicReceiver::class.java).let { intent ->
                 intent.action = ACTION_KEEP
                 PendingIntent.getBroadcast(context, 0, intent, 0)
             }
