@@ -1,17 +1,14 @@
 package cz.jaro.drawing
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.PointF
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.widget.ImageView
+import android.view.View
 
 
-class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, attrs) {
+class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private val tag = DrawingView::class.java.name
 
@@ -23,13 +20,17 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        bitmap = if (bitmap == null)
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmapCreated = bitmap == null
+
+        bitmap = if (bitmapCreated)
+            Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         else
             Bitmap.createScaledBitmap(bitmap, w, h, false)
 
-        setImageBitmap(bitmap)
         canvas.setBitmap(bitmap)
+
+        if (bitmapCreated)
+            clear()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -81,6 +82,10 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        // Draw image (with finished curved)
+        if (bitmap != null)
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+
         // Draw open curves
         for (curve: MyCurve in curves.values)
             curve.draw(canvas)
@@ -88,7 +93,11 @@ class DrawingView(context: Context, attrs: AttributeSet) : ImageView(context, at
 
     fun clear() {
         if (bitmap != null) {
-            bitmap!!.eraseColor(Color.TRANSPARENT)
+            val whitePaint = Paint()
+            whitePaint.setColor(Color.WHITE)
+            whitePaint.setStyle(Paint.Style.FILL)
+            canvas.drawPaint(whitePaint)
+
             invalidate()
         }
     }
