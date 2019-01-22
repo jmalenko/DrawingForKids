@@ -3,8 +3,10 @@ package cz.jaro.drawing
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.preference.PreferenceManager
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+import java.util.*
 
 /**
  * This is a public BroadcastReceiver for the DrawingActivity. Most intents are forwarded to the activity.
@@ -31,6 +33,23 @@ class PublicReceiver : BroadcastReceiver() {
                    Solution: Therefore we have to register the keeper here in PublicReceiver and not in DrawingActivity.
                 */
 
+                // It can happen that the DrawingActivitykeeperIntent is not cancelled on quit. Therefore we keep track of quitting in this BroadcastReceiver.
+                val now = GregorianCalendar()
+                val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                if (preferences.contains(PREF_QUIT_TIME)) {
+                    val quitTimeMS = preferences.getLong(PREF_QUIT_TIME, PREF_DEFAULT_LONG)
+                    if (quitTimeMS != PREF_DEFAULT_LONG) {
+                        val quitTime = GregorianCalendar()
+                        quitTime.timeInMillis = quitTimeMS
+
+                        val delta = now.timeInMillis - quitTime.timeInMillis
+                        if (delta < QUIT_RECENT_MS) {
+                            Log.i(tag, "The app quited in recent past ($delta ms ago). Not invoking keeper.")
+                            return
+                        }
+                    }
+                }
+
                 // Register for next time
                 DrawingActivity.registerKeeper(tag, context)
 
@@ -40,11 +59,31 @@ class PublicReceiver : BroadcastReceiver() {
                 startIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(startIntent)
             }
+            DrawingActivity.ACTION_QUIT -> {
+                // Store
+                val now = GregorianCalendar()
+                val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                val editor = preferences.edit()
+                editor.putLong(PREF_QUIT_TIME, now.timeInMillis)
+                editor.apply()
+
+                // Forward the intent to DrawingActivity
+                val localBroadcastManager = LocalBroadcastManager.getInstance(context)
+                localBroadcastManager.sendBroadcast(intent)
+            }
             else -> {
                 // Forward the intent to DrawingActivity
                 val localBroadcastManager = LocalBroadcastManager.getInstance(context)
                 localBroadcastManager.sendBroadcast(intent)
             }
         }
+    }
+
+    companion object {
+        const val PREF_QUIT_TIME = "PREF_QUIT_TIME"
+        const val PREF_DEFAULT_LONG = -1L
+
+        // Constant derived as 5 seconds (the cold start is excessive) plus the interval of the keeper
+        const val QUIT_RECENT_MS = 5000 + DrawingActivity.KEEPER_INTERVAL_SEC * 1000
     }
 }
