@@ -11,9 +11,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.LocalBroadcastManager
@@ -342,6 +340,8 @@ class DrawingActivity : Activity() {
                 if (gesturePerformed()) {
                     Log.i(tag, "Cleaning the image")
 
+                    vibrate()
+
                     saveDrawing()
 
                     // Clear the canvas
@@ -452,6 +452,18 @@ class DrawingActivity : Activity() {
         }
 
         return state == 3
+    }
+
+    private fun vibrate() {
+        val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+        if (v != null && v.hasVibrator()) {
+            val duration = 200L
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                v.vibrate(duration)
+            }
+        }
     }
 
     companion object {
