@@ -195,13 +195,6 @@ class DrawingActivity : Activity() {
     }
 
     fun saveDrawing() {
-        // Get the bitmap
-        val bitmap = canvas.bitmap
-        if (bitmap == null) {
-            Log.e(tag, "Cannot save image because bitmap is null")
-            return
-        }
-
         // Construct the file name
         // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
         val imageTime = System.currentTimeMillis()
@@ -217,13 +210,13 @@ class DrawingActivity : Activity() {
                 picturesDir.mkdirs()
             }
 
-            val imageFilePath = File(picturesDir, imageFileName).getAbsolutePath()
+            val imageFilePath = File(picturesDir, imageFileName).absolutePath
 
             // Save bitmap to file
             try {
-                FileOutputStream(imageFilePath).use({ out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                })
+                FileOutputStream(imageFilePath).use { out ->
+                    canvas.bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
                 Log.i(tag, "Image saved to $imageFilePath")
             } catch (e: IOException) {
                 Log.w(tag, "Cannot save image to $imageFilePath", e)
@@ -233,11 +226,9 @@ class DrawingActivity : Activity() {
         }
     }
 
-    fun isExternalStorageWritable(): Boolean {
+    private fun isExternalStorageWritable(): Boolean {
         val state = Environment.getExternalStorageState()
-        return if (Environment.MEDIA_MOUNTED == state) {
-            true
-        } else false
+        return Environment.MEDIA_MOUNTED == state
     }
 
     /*
@@ -546,6 +537,6 @@ class DrawingActivity : Activity() {
 
 class OrientationRecord(val timestamp: Long, val orientations: FloatArray) {
     override fun toString(): String {
-        return vectorInRadToStringInDeg(orientations) + " @${timestamp}"
+        return vectorInRadToStringInDeg(orientations) + " @$timestamp"
     }
 }

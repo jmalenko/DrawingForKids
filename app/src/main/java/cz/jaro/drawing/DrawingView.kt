@@ -1,5 +1,6 @@
 package cz.jaro.drawing
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -12,27 +13,25 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     private val tag = DrawingView::class.java.name
 
-    internal var bitmap: Bitmap? = null
+    internal var bitmap: Bitmap
     private val canvas: Canvas = Canvas()
 
     private val curves: MutableMap<Int, MyCurve> = HashMap() // Key is pointerId
 
+    init {
+        bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888) // Use a constant size. This will be resized in onSizeChanged(...) which will be called before the activity appears
+        canvas.setBitmap(bitmap)
+        clear()
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        val bitmapCreated = bitmap == null
-
-        bitmap = if (bitmapCreated)
-            Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        else
-            Bitmap.createScaledBitmap(bitmap, w, h, false)
-
+        bitmap = Bitmap.createScaledBitmap(bitmap, w, h, false)
         canvas.setBitmap(bitmap)
-
-        if (bitmapCreated)
-            clear()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
         Log.v(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}")
@@ -83,8 +82,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         super.onDraw(canvas)
 
         // Draw image (with finished curved)
-        if (bitmap != null)
-            canvas.drawBitmap(bitmap, 0f, 0f, null)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
 
         // Draw open curves
         for (curve: MyCurve in curves.values)
@@ -92,14 +90,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     }
 
     fun clear() {
-        if (bitmap != null) {
-            val whitePaint = Paint()
-            whitePaint.setColor(Color.WHITE)
-            whitePaint.setStyle(Paint.Style.FILL)
-            canvas.drawPaint(whitePaint)
+        val whitePaint = Paint()
+        whitePaint.color = Color.WHITE
+        whitePaint.style = Paint.Style.FILL
+        canvas.drawPaint(whitePaint)
 
-            invalidate()
-        }
+        invalidate()
     }
 
     /**
