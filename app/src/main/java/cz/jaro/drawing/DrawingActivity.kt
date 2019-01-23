@@ -405,7 +405,7 @@ class DrawingActivity : Activity() {
                 SENSOR_HISTORY_NANOSEC < timestamp - sensorRecords[firstRecent].timestamp) {
             firstRecent++
         }
-        // TODO ArrayList is not effective at removing first N elements. Choose another data structure. Also, we can discard subsequent record that are close.
+        // TODO ArrayList is not effective at removing first N elements. Choose another data structure. Also, we can discard subsequent record that are close. (Note: LinkedList is not a good data structure for this because the iterator iterates first-to-last, while in gesturePerformed() we need to iterate last-to-first.)
         val subListToRemove = sensorRecords.subList(0, firstRecent)
         subListToRemove.clear()
     }
