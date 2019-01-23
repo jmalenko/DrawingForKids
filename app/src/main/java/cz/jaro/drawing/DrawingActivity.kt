@@ -38,7 +38,7 @@ import kotlin.math.PI
  * - Keep screen on (but user can turn it off by pressing power button)
  * - If the screen is turned off by pressing the power button, then 1. turn the screen on (unreliable based on testing) and 2. don't require password/PIN (reliable after pressing the power button again)
  * - Prevent all keys/buttons, including Volume Up/Down, Back, Recent Apps
- * - Clear the image if the orientation changes by more than 70 degrees (and back) in last 3 seconds
+ * - Clear the image if the orientation changes by more than 90 degrees (and back) in last 3 seconds
  * - A notification exists during the life of the activity - for quitting the app
  * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
  * - Save the image on quit and before it is cleared
@@ -472,7 +472,7 @@ class DrawingActivity : Activity() {
         const val KEEPER_INTERVAL_SEC = 3
 
         const val SENSOR_HISTORY_NANOSEC = 3 * 1e9
-        const val SENSOR_ANGLE_OUT_RAD = 70 / 180f * PI//Math.toRadians(SENSOR_ANGLE_MAX_DEG.toDouble())
+        const val SENSOR_ANGLE_OUT_RAD = 90 / 180f * PI//Math.toRadians(SENSOR_ANGLE_MAX_DEG.toDouble())
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
         const val ACTION_QUIT = "ACTION_QUIT"
