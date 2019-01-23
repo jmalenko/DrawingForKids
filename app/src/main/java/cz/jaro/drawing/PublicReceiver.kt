@@ -33,7 +33,7 @@ class PublicReceiver : BroadcastReceiver() {
                    Solution: Therefore we have to register the keeper here in PublicReceiver and not in DrawingActivity.
                 */
 
-                // It can happen that the DrawingActivitykeeperIntent is not cancelled on quit. Therefore we keep track of quitting in this BroadcastReceiver.
+                // It can happen that the DrawingActivity.keeperIntent is not cancelled on quit. Therefore we keep track of quitting in this BroadcastReceiver.
                 val now = GregorianCalendar()
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context)
                 if (preferences.contains(PREF_QUIT_TIME)) {

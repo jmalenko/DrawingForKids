@@ -16,11 +16,11 @@ class DrawingActivityTest {
 
         for (i in 0..5) {
             drawingActivity.sensorRecords.add(OrientationRecord(0, floatArrayOf((Math.PI / 10 * i).toFloat(), 0f, 0f)))
-            assertFalse("Turning away i=${i}", drawingActivity.gesturePerformed())
+            assertFalse("Turning away i=$i", drawingActivity.gesturePerformed())
         }
         for (i in 6 downTo 3) {
             drawingActivity.sensorRecords.add(OrientationRecord(0, floatArrayOf((Math.PI / 10 * i).toFloat(), 0f, 0f)))
-            assertFalse("Turning near i=${i}", drawingActivity.gesturePerformed())
+            assertFalse("Turning near i=$i", drawingActivity.gesturePerformed())
         }
 
         val i = 2
