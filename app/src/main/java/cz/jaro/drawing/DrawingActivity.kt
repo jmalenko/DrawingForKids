@@ -95,6 +95,12 @@ class DrawingActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
+        // It can happen that the sctivity was started (from PublicReceiver), and took 2 seconds to appear (run this function). If the app was quited in this period, quit the app.
+        if (PublicReceiver.quitRecently(this)) {
+            Log.w(tag, "The app quited in recent past. Not resuming activity.")
+            finish()
+        }
+
         // Fullscreen - sticky immersive mode
         // This is intentionally here to prevent status bar from appearing in certain situations.
         // Specifically without this, the status bar would appear after 1. leaving and returning to the app (but this could be solved by entering the immersive
