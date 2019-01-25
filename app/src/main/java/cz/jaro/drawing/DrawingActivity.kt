@@ -421,35 +421,38 @@ class DrawingActivity : Activity() {
      * The intended orientation change is defined by: rotating the device substantially away and back to the original position, in a short period of time.
      */
     fun gesturePerformed(): Boolean {
+        // FIXME This only works when the device is in portrait mode. It doesn't work when lying flat on a desk.
         /*
         Algorithm:
         We go back and compare the current orientation with the past.
         First, we are looking for an orientation that is different by more than SENSOR_ANGLE_OUT_RAD from the current orientation.
         Second, we are looking for an orientation that is different by less than SENSOR_ANGLE_NEAR_RAD from the current orientation.
         */
-        val orientations1 = sensorRecords[sensorRecords.size - 1].orientations
-        Log.v(tag, "From ${vectorInRadToStringInDeg(orientations1)}")
+        val o1 = sensorRecords[sensorRecords.size - 1].orientations
+        var logMessage = "From ${vectorInRadToStringInDeg(o1)}"
 
         var state = 1
         loop@ for (i in sensorRecords.size - 2 downTo 0) {
-            val orientations2 = sensorRecords[i].orientations
-            val angle = Math.sqrt(
-                            Math.pow(orientations1[0].toDouble() - orientations2[0], 2.0) +
-                                    Math.pow(orientations1[1].toDouble() - orientations2[1], 2.0) +
-                                    Math.pow(orientations1[2].toDouble() - orientations2[2], 2.0)
-                    )
-//            Log.v(tag, "To ${vectorInRadToStringInDeg(orientations2)} is ${Math.round(Math.toDegrees(angle))} deg")
+            val o2 = sensorRecords[i].orientations
+
+            val angle = angleBetweenOrientations(o1, o2)
+            logMessage += "\nTo ${vectorInRadToStringInDeg(o2)} is ${Math.round(Math.toDegrees(angle))} deg"
+
+            val o3 = sensorRecords[i + 1].orientations
+            val angle2 = angleBetweenOrientations(o3, o2)
+            if (Math.PI / 6 < angle)
+                logMessage += "  jump ${Math.round(Math.toDegrees(angle2))} deg"
 
             when (state) {
                 1 -> {
                     if (SENSOR_ANGLE_OUT_RAD < angle) {
-                        Log.d(tag, "Big difference found")
+                        logMessage += "\nBig difference found"
                         state++
                     }
                 }
                 2 -> {
                     if (angle < SENSOR_ANGLE_NEAR_RAD) {
-                        Log.d(tag, "Small difference found")
+                        logMessage += "\nSmall difference found"
                         state++
                         break@loop
                     }
@@ -457,7 +460,43 @@ class DrawingActivity : Activity() {
             }
         }
 
+//        Log.d(tag, logMessage)
+//        logText.text = logMessage
+
         return state == 3
+    }
+
+    fun mod(a: Float, b: Double): Double {
+        return (((a % b) + b) % b)
+    }
+
+    /**
+     * @return Angle in radians
+     */
+    fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
+        // Yaw, range from -180 to 180 deg
+        // Roll, range from -90 to 90 deg
+        // Pitch, range from -180 to 180 deg
+
+        val diffX = o1[0] - o2[0]
+        val diffY = o1[1] - o2[1]
+        val diffZ = o1[2] - o2[2]
+
+        val modX = mod(diffX, 2 * Math.PI)
+        val modY = mod(diffY, Math.PI)
+        val modZ = mod(diffZ, 2 * Math.PI)
+
+        val minX = Math.min(modX, 2 * Math.PI - modX)
+        val minY = Math.min(modY, Math.PI - modY)
+        val minZ = Math.min(modZ, 2 * Math.PI - modZ)
+
+        val powX = minX * minX
+        val powY = minY * minY
+        val powZ = minZ * minZ
+
+        val sum = powX + powY // ignore Z
+        val angle = Math.sqrt(sum)
+        return angle
     }
 
     private fun vibrate() {
@@ -477,8 +516,8 @@ class DrawingActivity : Activity() {
         const val NOTIFICATION_MAIN_ID = 0
         const val KEEPER_INTERVAL_SEC = 3
 
-        const val SENSOR_HISTORY_NANOSEC = 3 * 1e9
-        const val SENSOR_ANGLE_OUT_RAD = 90 / 180f * PI//Math.toRadians(SENSOR_ANGLE_MAX_DEG.toDouble())
+        const val SENSOR_HISTORY_NANOSEC = 2 * 1e9
+        const val SENSOR_ANGLE_OUT_RAD = 90 / 180f * PI
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
         const val ACTION_QUIT = "ACTION_QUIT"
