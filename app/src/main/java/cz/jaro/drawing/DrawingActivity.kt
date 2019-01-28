@@ -415,7 +415,7 @@ class DrawingActivity : Activity(), SensorEventListener {
         val now = System.currentTimeMillis()
         val record = OrientationRecord(now, orientation.clone())
 
-//        if (count++ % 5 != 0)
+//        if (count++ % 10 != 0)
 //            return false
 
         sensorRecords.add(record)
