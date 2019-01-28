@@ -372,12 +372,15 @@ class DrawingActivity : Activity(), SensorEventListener {
         if (accelerometerTime == 0L || magnetometerTime == 0L)
             return
 
-        // Calculate the currentOrientation
-        updateOrientation()
+        // Calculate the orientation
+        if (!updateOrientation())
+            return
 
+        // Add the event to list of events
         if (!addEvent(currentOrientation))
             return
 
+        // Check if the gesture was performed
         if (gesturePerformed()) {
             Log.i(tag, "Clearing the image")
 
@@ -393,11 +396,11 @@ class DrawingActivity : Activity(), SensorEventListener {
         }
     }
 
-    private fun updateOrientation() {
+    private fun updateOrientation(): Boolean {
         val rotationMatrix = FloatArray(9)
 
         // Update rotation matrix, which is needed to update currentOrientation angles.
-        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
+        val rotationOK = SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
         // "rotationMatrix" now has up-to-date information.
 
         SensorManager.getOrientation(rotationMatrix, currentOrientation)
@@ -406,6 +409,8 @@ class DrawingActivity : Activity(), SensorEventListener {
         // Azimuth, range from 0 to 360 deg
         // Pitch, range from -90 to 90 deg
         // Roll, range from -90 to 90 deg
+
+        return rotationOK
     }
 
 //    var count = 0
@@ -449,7 +454,7 @@ class DrawingActivity : Activity(), SensorEventListener {
 
         val o1 = sensorRecords[sensorRecords.size - 1].orientations
         var logMessage = "From ${vectorInRadToStringInDeg(o1)}"
-        logMessage += "size = ${sensorRecords.size}}"
+        logMessage += "\nsize = ${sensorRecords.size}}"
 
         var state = 1
         loop@ for (i in sensorRecords.size - 2 downTo 0) {
