@@ -12,7 +12,7 @@ import org.junit.Test
 class DrawingActivityTest {
     val drawingActivity = DrawingActivity()
 
-    val epsilon = Math.toRadians(2.1)
+    val epsilon = Math.toRadians(0.1)
 
     @Test
     fun gesture() {
@@ -39,43 +39,44 @@ class DrawingActivityTest {
         var angleExpected: Double
 
         // 1st element overrun
-        o1 = vectorDegToRad(+179f, 0f, 0f)
-        o2 = vectorDegToRad(-179f, 0f, 0f)
+        o1 = vectorDegToRad(1f, 0f, 0f)
+        o2 = vectorDegToRad(359f, 0f, 0f)
+        angleExpected = Math.toRadians(2.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
-        o1 = vectorDegToRad(-179f, 0f, 0f)
-        o2 = vectorDegToRad(+179f, 0f, 0f)
+
+        o1 = vectorDegToRad(359f, 0f, 0f)
+        o2 = vectorDegToRad(1f, 0f, 0f)
+        angleExpected = Math.toRadians(2.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 2nd element overrun
         o1 = vectorDegToRad(0f, +89f, 0f)
         o2 = vectorDegToRad(0f, -89f, 0f)
+        angleExpected = Math.toRadians(178.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         o1 = vectorDegToRad(0f, -89f, 0f)
         o2 = vectorDegToRad(0f, +89f, 0f)
+        angleExpected = Math.toRadians(178.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 3rd element overrun
-        o1 = vectorDegToRad(0f, 0f, +179f)
-        o2 = vectorDegToRad(0f, 0f, -179f)
+        o1 = vectorDegToRad(0f, 0f, +89f)
+        o2 = vectorDegToRad(0f, 0f, -89f)
+        angleExpected = Math.toRadians(178.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
-        o1 = vectorDegToRad(0f, 0f, -179f)
-        o2 = vectorDegToRad(0f, 0f, +179f)
+        o1 = vectorDegToRad(0f, 0f, -89f)
+        o2 = vectorDegToRad(0f, 0f, +89f)
+        angleExpected = Math.toRadians(178.0)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be almost zero", angle < epsilon)
-        assertTrue("Angle ($angle) should be non-negative", 0 <= angle)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 1st element distance
         p = 60f
@@ -83,8 +84,7 @@ class DrawingActivityTest {
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(p, 0f, 0f)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be around $p", angleExpected - epsilon < angle)
-        assertTrue("Angle ($angle) should be around $p", angle < angleExpected + epsilon)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 2nd element distance
         p = 60f
@@ -92,8 +92,7 @@ class DrawingActivityTest {
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(0f, p, 0f)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be around $p", angleExpected - epsilon < angle)
-        assertTrue("Angle ($angle) should be around $p", angle < angleExpected + epsilon)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 3rd element distance
         p = 60f
@@ -101,20 +100,49 @@ class DrawingActivityTest {
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(0f, 0f, p)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be around $p", angleExpected - epsilon < angle)
-        assertTrue("Angle ($angle) should be around $p", angle < angleExpected + epsilon)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+
+        // 1st element, all distances from zero
+        for (deg in 10..360 step 10) {
+            p = deg.toFloat()
+            angleExpected = Math.toRadians((if (deg < 180) deg else 360 - deg).toDouble())
+            o1 = vectorDegToRad(0f, 0f, 0f)
+            o2 = vectorDegToRad(p, 0f, 0f)
+            angle = drawingActivity.angleBetweenOrientations(o1, o2)
+            assertTrue("For deg=$deg, angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+        }
+
+        // 2nd element, all distances from zero
+        for (deg in -90..90 step 10) {
+            p = deg.toFloat()
+            angleExpected = Math.toRadians(Math.abs(p.toDouble()))
+            o1 = vectorDegToRad(0f, 0f, 0f)
+            o2 = vectorDegToRad(0f, p, 0f)
+            angle = drawingActivity.angleBetweenOrientations(o1, o2)
+            assertTrue("For deg=$deg, angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+        }
+
+        // 3rd element, all distances from zero
+        for (deg in -90..90 step 10) {
+            p = deg.toFloat()
+            angleExpected = Math.toRadians(Math.abs(p.toDouble()))
+            o1 = vectorDegToRad(0f, 0f, 0f)
+            o2 = vectorDegToRad(0f, p, 0f)
+            angle = drawingActivity.angleBetweenOrientations(o1, o2)
+            assertTrue("For deg=$deg, angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+        }
 
         // 1st & 2nd element distance
         p = 60f
-        angleExpected = Math.toRadians(pyth(p))
+        angleExpected = Math.toRadians(75.52)
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(p, p, 0f)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be around $angleExpected ($p deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
         // 1st & 3rd element distance
         p = 60f
-        angleExpected = Math.toRadians(pyth(p))
+        angleExpected = Math.toRadians(p.toDouble())
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(p, 0f, p)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
@@ -122,7 +150,7 @@ class DrawingActivityTest {
 
         // 2nd & 3rd element distance
         p = 60f
-        angleExpected = Math.toRadians(pyth(p))
+        angleExpected = Math.toRadians(p.toDouble())
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(0f, p, p)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
@@ -130,22 +158,18 @@ class DrawingActivityTest {
 
         // 1st & 2nd & 3rd element distance
         p = 60f
-        angleExpected = Math.toRadians(pyth3(p))
+        angleExpected = Math.toRadians(75.52)
         o1 = vectorDegToRad(0f, 0f, 0f)
         o2 = vectorDegToRad(p, p, p)
         angle = drawingActivity.angleBetweenOrientations(o1, o2)
-        assertTrue("Angle ($angle) should be around $angleExpected ($p deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
 
-        // 1st element all distances
-        for (i in 10..180 step 10) {
-            p = i.toFloat()
-            angleExpected = Math.toRadians(p.toDouble())
-            o1 = vectorDegToRad(0f, 0f, 0f)
-            o2 = vectorDegToRad(p, 0f, 0f)
-            angle = drawingActivity.angleBetweenOrientations(o1, o2)
-            assertTrue("Angle ($angle) should be around $p", angleExpected - epsilon < angle)
-            assertTrue("Angle ($angle) should be around $p", angle < angleExpected + epsilon)
-        }
+        // 1st & 2nd element distance
+        angleExpected = Math.toRadians(2.0)
+        o1 = vectorDegToRad(0f, 89f, 0f)
+        o2 = vectorDegToRad(180f, 89f, 0f)
+        angle = drawingActivity.angleBetweenOrientations(o1, o2)
+        assertTrue("Angle $angle (${Math.toDegrees(angle)} deg) should be around $angleExpected (${Math.toDegrees(angleExpected)} deg)", angle in angleExpected - epsilon..angleExpected + epsilon)
     }
 
     private fun vectorDegToRad(x: Float, y: Float, z: Float): FloatArray {
@@ -157,11 +181,4 @@ class DrawingActivityTest {
 
     }
 
-    fun pyth(a: Float): Double {
-        return Math.sqrt((2 * a * a).toDouble())
-    }
-
-    fun pyth3(a: Float): Double {
-        return Math.sqrt((3 * a * a).toDouble())
-    }
 }
