@@ -90,6 +90,10 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     }
 
     fun clear() {
+        // Clear the open curves
+        curves.clear()
+
+        // Clear the canvas
         val whitePaint = Paint()
         whitePaint.color = Color.WHITE
         whitePaint.style = Paint.Style.FILL
