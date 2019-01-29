@@ -10,9 +10,9 @@ import org.junit.Test
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class DrawingActivityTest {
-    val drawingActivity = DrawingActivity()
+    private val drawingActivity = DrawingActivity()
 
-    val epsilon = Math.toRadians(0.1)
+    private val epsilon = Math.toRadians(0.1)
 
     @Test
     fun gesture() {

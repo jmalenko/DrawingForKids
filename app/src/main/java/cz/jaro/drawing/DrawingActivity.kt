@@ -93,7 +93,7 @@ class DrawingActivity : Activity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
 
-        // It can happen that the sctivity was started (from PublicReceiver), and took 2 seconds to appear (run this function). If the app was quited in this period, quit the app.
+        // It can happen that the activity was started (from PublicReceiver), and took 2 seconds to appear (run this function). If the app was quited in this period, quit the app.
         if (PublicReceiver.quitRecently(this)) {
             Log.w(tag, "The app quited in recent past. Not resuming activity.")
             finish()
@@ -170,7 +170,7 @@ class DrawingActivity : Activity(), SensorEventListener {
         }
     }
 
-    fun saveDrawing() {
+    private fun saveDrawing() {
         // Construct the file name
         // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
         val imageTime = System.currentTimeMillis()
@@ -467,15 +467,15 @@ class DrawingActivity : Activity(), SensorEventListener {
      * @param o2 Orientation, in radians.
      * @return Angle in radians.
      */
-    fun orientationAngle(o1: FloatArray, o2: FloatArray): Double {
+    private fun orientationAngle(o1: FloatArray, o2: FloatArray): Double {
         // Source: https://en.wikipedia.org/wiki/Great-circle_distance
 
         val delta0 = Math.abs(o1[0] - o2[0])
 
-        val addSins = Math.sin(o1[1].toDouble()) * Math.sin(o2[1].toDouble())
-        val addCoss = Math.cos(o1[1].toDouble()) * Math.cos(o2[1].toDouble()) * Math.cos(delta0.toDouble())
+        val addSin = Math.sin(o1[1].toDouble()) * Math.sin(o2[1].toDouble())
+        val addCos = Math.cos(o1[1].toDouble()) * Math.cos(o2[1].toDouble()) * Math.cos(delta0.toDouble())
 
-        val add = addSins + addCoss
+        val add = addSin + addCos
 
         val angle = Math.acos(add)
         return angle
@@ -488,7 +488,7 @@ class DrawingActivity : Activity(), SensorEventListener {
      * @param o2 Orientation, in radians.
      * @return Angle in radians.
      */
-    fun rollAngle(o1: FloatArray, o2: FloatArray): Double {
+    private fun rollAngle(o1: FloatArray, o2: FloatArray): Double {
         val delta2 = o1[2] - o2[2]
         val angle = Math.abs(delta2.toDouble())
         return angle

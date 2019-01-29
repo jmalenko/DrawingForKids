@@ -77,10 +77,10 @@ class PublicReceiver : BroadcastReceiver() {
 
     companion object {
         const val PREF_QUIT_TIME = "PREF_QUIT_TIME"
-        const val PREF_DEFAULT_LONG = -1L
+        private const val PREF_DEFAULT_LONG = -1L
 
         // Constant derived as 5 seconds (the cold start is excessive) plus the interval of the keeper
-        const val QUIT_RECENT_MS = 5000 + DrawingActivity.KEEPER_INTERVAL_SEC * 1000
+        private const val QUIT_RECENT_MS = 5000 + DrawingActivity.KEEPER_INTERVAL_SEC * 1000
 
         fun quitRecently(context: Context): Boolean {
             val now = GregorianCalendar()
