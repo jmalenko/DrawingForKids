@@ -67,7 +67,7 @@ Invariant: There is always at least one null value in the values array.
             throw IndexOutOfBoundsException("Index $index is bigger than the array size $size")
 
         var i = from + index
-        if (values.size < i) i -= values.size
+        if (values.size <= i) i -= values.size
 
         return values[i] as T
     }
