@@ -345,17 +345,7 @@ class DrawingActivity : Activity(), SensorEventListener {
 
         // Check if the gesture was performed
         if (gesturePerformed()) {
-            Log.i(tag, "Clearing the image")
-
-            vibrate()
-
-            saveDrawing()
-
-            // Clear the canvas
-            canvas.clear()
-
-            // Remove all the sensorAcc values
-            sensorRecords.clear()
+            onGesture()
         }
     }
 
@@ -426,6 +416,20 @@ class DrawingActivity : Activity(), SensorEventListener {
 //        logText.text = logMessage
 
         return state == 3
+    }
+
+    private fun onGesture() {
+        Log.i(tag, "Clearing the image")
+
+        vibrate()
+
+        saveDrawing()
+
+        // Clear the canvas
+        canvas.clear()
+
+        // Remove all the sensorAcc values
+        sensorRecords.clear()
     }
 
     fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
