@@ -59,13 +59,6 @@ class DrawingActivity : Activity(), SensorEventListener {
     private lateinit var keyguardLock: KeyguardManager.KeyguardLock
 
     private lateinit var sensorManager: SensorManager
-    private var sensorAcc: Sensor? = null
-    private var sensorMF: Sensor? = null
-    private val accelerometerReading = FloatArray(3)
-    private val magnetometerReading = FloatArray(3)
-    private var accelerometerTime: Long = 0 // Milliseconds. 0=sensor is inaccurate
-    private var magnetometerTime: Long = 0 // Milliseconds. 0=sensor is inaccurate
-    private val currentOrientation = FloatArray(3)
     val sensorRecords: MutableList<OrientationRecord> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -325,17 +318,15 @@ class DrawingActivity : Activity(), SensorEventListener {
 
     private fun startSensors() {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        sensorMF = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
 
-        if (sensorAcc == null || sensorMF == null) {
-            Log.w(tag, "Cannot monitor orientation changes (accelerometer or magnetic field sensor missing)")
+        if (sensor == null) {
+            Log.w(tag, "Cannot monitor orientation changes (sensors missing)")
             // TODO Consider adding the "Clear" action to the notification (the only way o clear the canvas is to quit the app and start it again)
             return
         }
 
-        sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_NORMAL)
-        sensorManager.registerListener(this, sensorMF, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     private fun stopSensors() {
@@ -343,42 +334,15 @@ class DrawingActivity : Activity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor, i: Int) {
-        when (sensor.type) {
-            Sensor.TYPE_ACCELEROMETER -> accelerometerTime = 0
-            Sensor.TYPE_MAGNETIC_FIELD -> magnetometerTime = 0
-        }
+        // Do nothing
     }
 
     override fun onSensorChanged(event: SensorEvent) {
         if (!canBeTrusted(event.accuracy))
             return
 
-        when (event.sensor.type) {
-            Sensor.TYPE_ACCELEROMETER -> {
-                System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
-                accelerometerTime = System.currentTimeMillis()
-            }
-            Sensor.TYPE_MAGNETIC_FIELD -> {
-                System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
-                magnetometerTime = System.currentTimeMillis()
-            }
-        }
-
-        newSensorReading()
-    }
-
-    fun newSensorReading() {
-        // If inaccurate then exit
-        if (accelerometerTime == 0L || magnetometerTime == 0L)
-            return
-
-        // Calculate the orientation
-        if (!updateOrientation())
-            return
-
         // Add the event to list of events
-        if (!addEvent(currentOrientation))
-            return
+        addEvent(event)
 
         // Check if the gesture was performed
         if (gesturePerformed()) {
@@ -396,39 +360,18 @@ class DrawingActivity : Activity(), SensorEventListener {
         }
     }
 
-    private fun updateOrientation(): Boolean {
-        val rotationMatrix = FloatArray(9)
-
-        // Update rotation matrix, which is needed to update currentOrientation angles.
-        val rotationOK = SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
-        // "rotationMatrix" now has up-to-date information.
-
-        SensorManager.getOrientation(rotationMatrix, currentOrientation)
-        // "currentOrientation" now has up-to-date information:
-
-        // Azimuth, range from 0 to 360 deg
-        // Pitch, range from -90 to 90 deg
-        // Roll, range from -90 to 90 deg
-
-        return rotationOK
-    }
-
-//    var count = 0
-
-    private fun addEvent(orientation: FloatArray): Boolean {
+    private fun addEvent(event: SensorEvent): Boolean {
         // Add the event to the list
-        val now = System.currentTimeMillis()
-        val record = OrientationRecord(now, orientation.clone())
-
-//        if (count++ % 10 != 0)
-//            return false
+        val now = event.timestamp // nanoseconds since the device started
+        val orientation = rotationSensorValuesToOrientations(event.values)
+        val record = OrientationRecord(now, orientation)
 
         sensorRecords.add(record)
 
         // Remove old records from the list
         var firstRecent = 0
         while (firstRecent < sensorRecords.size &&
-                SENSOR_HISTORY_MS < now - sensorRecords[firstRecent].time) {
+                SENSOR_HISTORY_NS < now - sensorRecords[firstRecent].timestamp) {
             firstRecent++
         }
         // TODO ArrayList is not effective at removing first N elements. Choose another data structure. Also, we can discard subsequent record that are close. (Note: LinkedList is not a good data structure for this because the iterator iterates first-to-last, while in gesturePerformed() we need to iterate last-to-first.)
@@ -454,7 +397,7 @@ class DrawingActivity : Activity(), SensorEventListener {
 
         val o1 = sensorRecords[sensorRecords.size - 1].orientations
         var logMessage = "From ${vectorInRadToStringInDeg(o1)}"
-        logMessage += "\nsize = ${sensorRecords.size}}"
+        logMessage += "\nsize = ${sensorRecords.size}"
 
         var state = 1
         loop@ for (i in sensorRecords.size - 2 downTo 0) {
@@ -498,6 +441,32 @@ class DrawingActivity : Activity(), SensorEventListener {
         return angle
     }
 
+    private fun rotationSensorValuesToOrientations(values: FloatArray): FloatArray {
+        // The rotation vector sensor combines raw data generated by the gyroscope, accelerometer, and magnetometer to create a quaternion (the values parameter)
+
+        // Convert the quaternion into a rotation matrix (a 4x4 matrix)
+        val rotationMatrix = FloatArray(16)
+        SensorManager.getRotationMatrixFromVector(rotationMatrix, values)
+
+        // Remap coordinate system
+        val remappedRotationMatrix = FloatArray(16)
+        SensorManager.remapCoordinateSystem(rotationMatrix,
+                SensorManager.AXIS_X,
+                SensorManager.AXIS_Z,
+                remappedRotationMatrix)
+
+        // Convert to orientations (in radians)
+        val orientations = FloatArray(3)
+        SensorManager.getOrientation(remappedRotationMatrix, orientations)
+
+        // Convert to orientations in degrees
+//        val orientationsDeg = FloatArray(3)
+//        for (i in 0..2) {
+//            orientationsDeg[i] = Math.toDegrees(orientations[i].toDouble()).toFloat()
+//        }
+
+        return orientations
+    }
     /**
      * Returns the angle between [orientations [o1] and [o2]. Ignores the roll.
      * @param o1 Orientation, in radians.
@@ -554,7 +523,7 @@ class DrawingActivity : Activity(), SensorEventListener {
         const val NOTIFICATION_MAIN_ID = 0
         const val KEEPER_INTERVAL_SEC = 3
 
-        const val SENSOR_HISTORY_MS = 1000
+        const val SENSOR_HISTORY_NS = 1_500_000_000
         const val SENSOR_ANGLE_OUT_RAD = 90 / 180f * PI
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
@@ -611,8 +580,8 @@ class DrawingActivity : Activity(), SensorEventListener {
     }
 }
 
-class OrientationRecord(val time: Long, val orientations: FloatArray) {
+class OrientationRecord(val timestamp: Long, val orientations: FloatArray) {
     override fun toString(): String {
-        return vectorInRadToStringInDeg(orientations) + " @$time"
+        return vectorInRadToStringInDeg(orientations) + " @$timestamp"
     }
 }
