@@ -27,7 +27,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.PI
 
 /**
@@ -59,7 +58,7 @@ class DrawingActivity : Activity(), SensorEventListener {
     private lateinit var keyguardLock: KeyguardManager.KeyguardLock
 
     private lateinit var sensorManager: SensorManager
-    val sensorRecords: MutableList<OrientationRecord> = ArrayList()
+    val sensorRecords: RecentList<OrientationRecord> = RecentList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -369,14 +368,9 @@ class DrawingActivity : Activity(), SensorEventListener {
         sensorRecords.add(record)
 
         // Remove old records from the list
-        var firstRecent = 0
-        while (firstRecent < sensorRecords.size &&
-                SENSOR_HISTORY_NS < now - sensorRecords[firstRecent].timestamp) {
-            firstRecent++
+        while (SENSOR_HISTORY_NS < now - sensorRecords[0].timestamp) {
+            sensorRecords.removeFirst()
         }
-        // TODO ArrayList is not effective at removing first N elements. Choose another data structure. Also, we can discard subsequent record that are close. (Note: LinkedList is not a good data structure for this because the iterator iterates first-to-last, while in gesturePerformed() we need to iterate last-to-first.)
-        val subListToRemove = sensorRecords.subList(0, firstRecent)
-        subListToRemove.clear()
 
         return true
     }
