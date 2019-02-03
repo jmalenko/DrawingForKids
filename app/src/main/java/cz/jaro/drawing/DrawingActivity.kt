@@ -15,6 +15,7 @@ import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.LocalBroadcastManager
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -51,7 +52,7 @@ import kotlin.math.PI
  *   buttons in navigation bar.
  * - Power button. This includes both short press (to turn off the screen) and long press with menu to power off the phone.
  */
-class DrawingActivity : Activity(), SensorEventListener {
+class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
     private val tag = DrawingActivity::class.java.name
 
@@ -67,6 +68,10 @@ class DrawingActivity : Activity(), SensorEventListener {
 
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Hide action bar
+        val actionBar = supportActionBar
+        actionBar?.hide()
 
         // Start components
 
