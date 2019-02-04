@@ -60,6 +60,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     val sensorRecords: RecentList<OrientationRecord> = RecentList()
+    private var isSensorUsed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,11 +82,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         // Listen for local intents
         val filter = IntentFilter(ACTION_QUIT)
         filter.addAction(ACTION_KEEP)
+        filter.addAction(ACTION_CLEAR)
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         localBroadcastManager.registerReceiver(receiver, filter)
-
-        // Create notification
-        createNotification()
 
         // Start keeper
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -93,6 +92,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // Start sensor
         startSensors()
+
+        // Create notification
+        createNotification()
     }
 
     override fun onResume() {
@@ -131,11 +133,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // Stop components (in reverse order compared to onCreate() )
 
+        cancelNotification()
+
         stopSensors()
 
         cancelKeeper()
-
-        cancelNotification()
 
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         localBroadcastManager.unregisterReceiver(receiver)
@@ -168,6 +170,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
                     finish()
                 }
                 // ACTION_KEEP was handled in PublicReceiver
+                ACTION_CLEAR -> {
+                    saveAndClear()
+                }
                 else -> {
                     throw IllegalArgumentException("Unexpected argument ${intent.action}")
                 }
@@ -249,11 +254,22 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         val mBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification_icon)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.abc_ic_clear_material, getString(R.string.notification_main_action_quit), quitPendingIntent)
+
+        // Show clear action if the ensor is not used
+        if (!isSensorUsed) {
+            val clearIntent = Intent(this, PublicReceiver::class.java).apply {
+                action = ACTION_CLEAR
+            }
+            val clearPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, clearIntent, 0)
+
+            mBuilder.addAction(R.drawable.ic_format_color_reset, getString(R.string.notification_main_action_clear), clearPendingIntent)
+        }
+        // TODO Actions are not supported on onder Androids
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mBuilder.setContentTitle(getString(R.string.notification_main_text))
@@ -346,9 +362,10 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
 
-        if (sensor == null) {
-            Log.w(tag, "Cannot monitor orientation changes (sensors missing)")
-            // TODO Consider adding the "Clear" action to the notification (the only way o clear the canvas is to quit the app and start it again)
+        isSensorUsed = sensor != null
+
+        if (!isSensorUsed) {
+            Log.w(tag, "Cannot monitor orientation changes (game rotation sensor is missing)")
             return
         }
 
@@ -446,17 +463,18 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun onGesture() {
-        Log.i(tag, "Clearing the image")
-
         vibrate()
 
-        saveDrawing()
+        saveAndClear()
 
-        // Clear the canvas
-        canvas.clear()
-
-        // Remove all the sensorAcc values
+        // Remove all the sensor values
         sensorRecords.clear()
+    }
+
+    private fun saveAndClear() {
+        Log.i(tag, "Clearing the image")
+        saveDrawing()
+        canvas.clear()
     }
 
     fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
@@ -554,6 +572,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         const val ACTION_QUIT = "ACTION_QUIT"
         const val ACTION_KEEP = "ACTION_KEEP"
+        const val ACTION_CLEAR = "ACTION_CLEAR"
 
         const val DRAWING_DIR_NAME = "DrawingForKids"
         const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"

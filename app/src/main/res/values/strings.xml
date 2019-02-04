@@ -6,4 +6,5 @@
 
     <string name="notification_main_text">Remaining in the app</string>
     <string name="notification_main_action_quit">Quit</string>
+    <string name="notification_main_action_clear">Clear</string>
 </resources>
