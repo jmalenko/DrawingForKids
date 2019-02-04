@@ -97,6 +97,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         createNotification()
     }
 
+    // TODO In the the following workflow: 1. Start drawing, 2. Start setting from via notification action, 3. Press Home, 4. Wait till the drawing appears. The drawing would be empty after step 4.
+
     override fun onResume() {
         super.onResume()
 
