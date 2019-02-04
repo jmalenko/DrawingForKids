@@ -252,13 +252,18 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
         val quitPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, quitIntent, 0)
 
+        val settingsIntent = Intent(this, PublicReceiver::class.java).apply {
+            action = ACTION_SETTINGS
+        }
+        val settingsPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, settingsIntent, 0)
+
         val mBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification_icon)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
-                .addAction(R.drawable.abc_ic_clear_material, getString(R.string.notification_main_action_quit), quitPendingIntent)
+                .addAction(R.drawable.ic_baseline_power_settings_new_24px, getString(R.string.notification_main_action_quit), quitPendingIntent)
 
         // Show clear action if the ensor is not used
         if (!isSensorUsed) {
@@ -267,8 +272,10 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             }
             val clearPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, clearIntent, 0)
 
-            mBuilder.addAction(R.drawable.ic_format_color_reset, getString(R.string.notification_main_action_clear), clearPendingIntent)
+            mBuilder.addAction(R.drawable.ic_baseline_clear_24px, getString(R.string.notification_main_action_clear), clearPendingIntent)
         }
+
+        mBuilder.addAction(R.drawable.ic_baseline_settings_20px, getString(R.string.notification_main_action_settings), settingsPendingIntent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mBuilder.setContentTitle(getString(R.string.notification_main_text))
@@ -572,6 +579,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         const val ACTION_QUIT = "ACTION_QUIT"
         const val ACTION_KEEP = "ACTION_KEEP"
         const val ACTION_CLEAR = "ACTION_CLEAR"
+        const val ACTION_SETTINGS = "ACTION_SETTINGS"
 
         const val DRAWING_DIR_NAME = "DrawingForKids"
         const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"

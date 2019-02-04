@@ -14,18 +14,18 @@
             android:required="true"/>
 
     <application
-            android:label="@string/app_name"
+            android:allowBackup="true"
+            android:fullBackupContent="@xml/backup_descriptor"
             android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
-            android:theme="@style/AppTheme"
-            android:allowBackup="true"
-            android:fullBackupContent="@xml/backup_descriptor">
+            android:theme="@style/AppTheme">
         <activity
-                android:name="cz.jaro.drawing.DrawingActivity"
-                android:configChanges="orientation|keyboardHidden|screenSize"
+                android:name=".DrawingActivity"
+                android:configChanges="screenSize"
                 android:label="@string/app_name"
-                android:launchMode="singleInstance"
+                android:launchMode="singleTop"
                 android:screenOrientation="portrait"
                 android:theme="@style/FullscreenTheme">
             <intent-filter>
@@ -33,6 +33,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+                android:name=".SettingsActivity"
+                android:label="@string/title_activity_settings">
         </activity>
 
         <receiver android:name=".PublicReceiver"/>

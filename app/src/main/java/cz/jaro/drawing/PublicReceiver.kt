@@ -1,7 +1,9 @@
 package cz.jaro.drawing
 
+import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.preference.PreferenceManager
 import android.support.v4.content.LocalBroadcastManager
@@ -42,6 +44,11 @@ class PublicReceiver : BroadcastReceiver() {
                 // Register for next time
                 DrawingActivity.registerKeeper(tag, context)
 
+                // If we are in Settings then do nothing
+                val isSettingsInForeground = isForeground(context, SettingsActivity::class.java.name) // Needed to detect when the wizard is running.
+                if (isSettingsInForeground)
+                    return
+
                 // Start the activity. The activity's onNewIntent(Intent) method is called in which we register the next event.
                 val startIntent = Intent(context, DrawingActivity::class.java)
                 startIntent.action = DrawingActivity.ACTION_KEEP
@@ -51,12 +58,30 @@ class PublicReceiver : BroadcastReceiver() {
             DrawingActivity.ACTION_QUIT -> {
                 doQuit(context, intent)
             }
+            DrawingActivity.ACTION_SETTINGS -> {
+                // Collapse Android notification tray
+                val closeDialogIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+                context.sendBroadcast(closeDialogIntent)
+
+                // Start activity
+                val startIntent = Intent(context, SettingsActivity::class.java)
+                startIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(startIntent)
+            }
             else -> {
                 // Forward the intent to DrawingActivity
                 val localBroadcastManager = LocalBroadcastManager.getInstance(context)
                 localBroadcastManager.sendBroadcast(intent)
             }
         }
+    }
+
+    fun isForeground(context: Context, className: String): Boolean {
+        val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val task = manager.getRunningTasks(1)
+        if (task.isEmpty()) return true // The true value is needed for Robolectric tests
+        val componentInfo = task[0].topActivity
+        return componentInfo.className == className
     }
 
     private fun doQuit(context: Context, intent: Intent) {
