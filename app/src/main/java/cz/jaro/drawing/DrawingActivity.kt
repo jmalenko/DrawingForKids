@@ -209,7 +209,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // Save to external storage
         if (isExternalStorageWritable()) {
-            val picturesDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), DRAWING_DIR_NAME)
+            val picturesDir = constructPicturesDir()
 
             // Create the directory (relevant only the first time)
             if (!picturesDir.exists()) {
@@ -629,6 +629,10 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         fun vectorInRadToStringInDeg(v: FloatArray): String {
             return "[${Math.round(Math.toDegrees(v[0].toDouble()))}, ${Math.round(Math.toDegrees(v[1].toDouble()))}, ${Math.round(Math.toDegrees(v[2].toDouble()))}]"
+        }
+
+        fun constructPicturesDir(): File {
+            return File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), DRAWING_DIR_NAME)
         }
     }
 }

@@ -1,9 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".SettingsActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:gravity="start" android:layout_margin="16dp">
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="30sp"/>
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="How to use"
+                android:textSize="24sp"
+                android:layout_marginTop="32dp"/>
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="The app can only be quitted from the notification by clocking on &quot;Quit&quot; action."
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Clear the drawing by rotating the device by 90° and back."
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="The drawings are saved into the following folder:"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="/sdcard/Pictures/DrawingForKidsSample"
+                android:id="@+id/savedDirectoryText"
+                android:textStyle="italic"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <Button
+                android:text="View saved drawings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:id="@+id/viewSavedButton"
+                android:layout_marginTop="8dp" android:padding="16dp"/>
+
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Premium"
+                android:textSize="24sp"
+                android:layout_marginTop="32dp"/>
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="The standard version track the user (for anonymous analytics) and shows ads."
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="The premium version neither track the user nor shows ads."
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <Button
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Buy premium"
+                android:id="@+id/buyButton"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" android:padding="16dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="You have the premium version."
+                android:id="@+id/versionText"
+                android:textStyle="italic"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Feedback"
+                android:textSize="24sp"
+                android:layout_marginTop="32dp"/>
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="We want to hear from you!"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <Button
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Provide feedback"
+                android:id="@+id/feedbackButton"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" android:padding="16dp"/>
+
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="About the author"
+                android:textSize="24sp"
+                android:layout_marginTop="32dp"/>
+
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="I'm Jaromír Malenko. I created this app for my kids after I wasn't able to find a suitable drawing app for my two little girls."
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="32dp"
+        />
+    </LinearLayout>
+</ScrollView>
