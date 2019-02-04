@@ -269,7 +269,6 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
             mBuilder.addAction(R.drawable.ic_format_color_reset, getString(R.string.notification_main_action_clear), clearPendingIntent)
         }
-        // TODO Actions are not supported on onder Androids
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mBuilder.setContentTitle(getString(R.string.notification_main_text))
