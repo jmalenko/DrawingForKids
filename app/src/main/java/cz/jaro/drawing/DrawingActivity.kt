@@ -175,6 +175,24 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    /**
+     * Checks if the device is Amazon Kindle Fire.
+     *
+     * The following website shows the limitation of Amazon Fire: https://developer.amazon.com/docs/app-submission/migrate-existing-app.html
+     *
+     * In this app, the following are relevant:
+     * - disable_keyguard permissions are unsupported
+     */
+    fun isKindleFire(): Boolean {
+        return android.os.Build.MANUFACTURER == "Amazon" &&
+                (android.os.Build.MODEL == "Kindle Fire" || android.os.Build.MODEL.startsWith("KF"))
+    }
+
+    /*
+     * Save drawing
+     * ============
+     */
+
     private fun saveDrawing() {
         // Construct the file name
         // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
@@ -305,14 +323,18 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // Disable keyguard
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE)
-        keyguardLock.disableKeyguard()
+        if (!isKindleFire()) {
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE)
+            keyguardLock.disableKeyguard()
+        }
     }
 
     private fun enableKeyguard() {
-        keyguardLock.reenableKeyguard()
-        // Note that the user may need to enter password/PIN after exiting from the app
+        if (!isKindleFire()) {
+            keyguardLock.reenableKeyguard()
+            // Note that the user may need to enter password/PIN after exiting from the app
+        }
     }
 
     /*
