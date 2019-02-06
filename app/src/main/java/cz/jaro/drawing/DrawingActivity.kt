@@ -18,14 +18,14 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
+import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import cz.jaro.drawing.DrawingActivity.Companion.vectorInRadToStringInDeg
 import kotlinx.android.synthetic.main.activity_drawing.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import kotlinx.android.synthetic.main.activity_drawing_debug.*
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.PI
@@ -51,6 +51,11 @@ import kotlin.math.PI
  * - The status bar and navigation bar cannot be removed. The interaction is minimized by sticky immersive mode and blocking the Apps and Back (not Home)
  *   buttons in navigation bar.
  * - Power button. This includes both short press (to turn off the screen) and long press with menu to power off the phone.
+ *
+ * Technical notes:
+ * - We use two approaches to detect gesture.
+ *   1. "Game rotation vector" sensor - can detect turn in all 3 dimensions. But the sensor may not be available on all devices (specifically, it is not availabale on Amazon Kindle Fire HD).
+ *   2. Orientation event listener - can detect only turns around the Z axis. Is supported by most devices (including Amazon Kindle Fire HD).
  */
 class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
@@ -59,13 +64,16 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var keyguardLock: KeyguardManager.KeyguardLock
 
     private lateinit var sensorManager: SensorManager
+    private lateinit var orientationListener: OrientationEventListener
     val sensorRecords: RecentList<OrientationRecord> = RecentList()
-    private var isSensorUsed = false
+    private var isGameSensorUsed = false
+    private var isOrientationListenerUsed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_drawing)
+        val layout = if (isDebug()) R.layout.activity_drawing_debug else R.layout.activity_drawing_debug
+        setContentView(layout)
 
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -91,7 +99,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         registerKeeper()
 
         // Start sensor
-        startSensors()
+        startGestureDetectorBySensor()
+        startGestureDetectorByOrientationListener()
 
         // Create notification
         createNotification()
@@ -104,7 +113,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // It can happen that the activity was started (from PublicReceiver), and took 2 seconds to appear (run this function). If the app was quited in this period, quit the app.
         if (PublicReceiver.quitRecently(this)) {
-            Log.w(tag, "The app quited in recent past. Not resuming activity.")
+            log(Log.WARN, "The app quited in recent past. Not resuming activity.")
             finish()
         }
 
@@ -137,7 +146,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         cancelNotification()
 
-        stopSensors()
+        stopGestureDetectorByOrientationListener()
+        stopGestureDetectorBySensor()
 
         cancelKeeper()
 
@@ -149,7 +159,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // Block all keys, including keyCode = KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN
-        Log.i(tag, "Blocked key ${keyCodeToString(keyCode)} (keyCode=$keyCode)")
+        log(Log.INFO, "Blocked key ${keyCodeToString(keyCode)} (keyCode=$keyCode)")
         return true
     }
 
@@ -164,11 +174,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            Log.v(tag, "onReceive() action=${intent.action}")
+            log(Log.VERBOSE, "onReceive() action=${intent.action}")
 
             when (intent.action) {
                 ACTION_QUIT -> {
-                    Log.i(tag, "Quiting")
+                    log(Log.INFO, "Quiting")
                     finish()
                 }
                 // ACTION_KEEP was handled in PublicReceiver
@@ -190,10 +200,56 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
      * In this app, the following are relevant:
      * - disable_keyguard permissions are unsupported
      */
-    fun isKindleFire(): Boolean {
+    private fun isKindleFire(): Boolean {
         return android.os.Build.MANUFACTURER == "Amazon" &&
                 (android.os.Build.MODEL == "Kindle Fire" || android.os.Build.MODEL.startsWith("KF"))
     }
+
+    /*
+     * Logging
+     * =======
+     */
+
+    @SuppressLint("SetTextI18n")
+    fun log(priority: Int, msg: String, tr: Throwable? = null) {
+        val cal = Calendar.getInstance()
+        val sdf = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+        val timeStr = sdf.format(cal.time)
+
+        val priorityStr = when (priority) {
+            Log.VERBOSE -> "VERBOSE"
+            Log.DEBUG -> "DEBUG"
+            Log.INFO -> "INFO"
+            Log.WARN -> "WARN"
+            Log.ERROR -> "ERROR"
+            else -> "UNKNOWN"
+        }
+
+        var message = "$timeStr $priorityStr $msg"
+
+        if (tr != null) {
+            // Print stack trace
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            tr.printStackTrace(pw)
+            message += "\n$sw"
+        }
+
+        // Print to syslog
+        Log.println(priority, tag, message)
+
+        // Show on screen if debug
+        if (isDebug()) {
+            val lengthMax = 1000
+
+            var textOld = logText.text
+            if (lengthMax < textOld.length) textOld = textOld.subSequence(0, 1000)
+
+            logText.text = "$message\n$textOld"
+        }
+    }
+
+    private fun isDebug() = BuildConfig.BUILD_TYPE == "debug"
 
     /*
      * Save drawing
@@ -223,12 +279,12 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
                 FileOutputStream(imageFilePath).use { out ->
                     canvas.bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 }
-                Log.i(tag, "Image saved to $imageFilePath")
+                log(Log.INFO, "Image saved to $imageFilePath")
             } catch (e: IOException) {
-                Log.w(tag, "Cannot save image to $imageFilePath", e)
+                log(Log.WARN, "Cannot save image to $imageFilePath", e)
             }
         } else {
-            Log.e(tag, "Cannot save image because the external storage is not writable")
+            log(Log.ERROR, "Cannot save image because the external storage is not writable")
         }
     }
 
@@ -268,7 +324,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
                 .addAction(R.drawable.ic_baseline_power_settings_new_24px, getString(R.string.notification_main_action_quit), quitPendingIntent)
 
         // Show clear action if the ensor is not used
-        if (!isSensorUsed) {
+        if (isGestureSupported()) {
             val clearIntent = Intent(this, PublicReceiver::class.java).apply {
                 action = ACTION_CLEAR
             }
@@ -323,7 +379,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun cancelKeeper() {
-        Log.i(tag, "Cancelling keeper")
+        log(Log.INFO, "Cancelling keeper")
         keeperIntent.cancel()
     }
 
@@ -362,26 +418,29 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     /*
-     * Sensors - to clear the drawing
-     * ==============================
+     * Sensor - to clear the drawing
+     * =============================
      */
 
-    private fun startSensors() {
+    private fun startGestureDetectorBySensor() {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
 
-        isSensorUsed = sensor != null
+        isGameSensorUsed = sensor != null
 
-        if (!isSensorUsed) {
-            Log.w(tag, "Cannot monitor orientation changes (game rotation sensor is missing)")
+        if (!isGameSensorUsed) {
+            log(Log.DEBUG, "Cannot use game rotation sensor to detect orientation changes")
             return
         }
+
+        log(Log.INFO, "Using game rotation sensor to detect orientation changes")
 
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
-    private fun stopSensors() {
+    private fun stopGestureDetectorBySensor() {
         sensorManager.unregisterListener(this)
+        isGameSensorUsed = false
     }
 
     override fun onAccuracyChanged(sensor: Sensor, i: Int) {
@@ -393,7 +452,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             return
 
         // Add the event to list of events
-        addEvent(event)
+        addEventSensor(event)
 
         // Check if the gesture was performed
         if (gesturePerformed()) {
@@ -401,15 +460,19 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    private fun addEvent(event: SensorEvent): Boolean {
-        // Add the event to the list
+    private fun addEventSensor(event: SensorEvent): Boolean {
         val now = event.timestamp // nanoseconds since the device started
         val orientation = rotationSensorValuesToOrientations(event.values)
         val record = OrientationRecord(now, orientation)
 
+        return addGestureRecordAndRemoveFarHistory(record)
+    }
+
+    private fun addGestureRecordAndRemoveFarHistory(record: OrientationRecord): Boolean {
         sensorRecords.add(record)
 
         // Remove old records from the list
+        val now = record.timestamp
         while (SENSOR_HISTORY_NS < now - sensorRecords[0].timestamp) {
             sensorRecords.removeFirst()
         }
@@ -464,8 +527,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
-//        Log.d(tag, logMessage)
-//        logText.text = logMessage
+        log(Log.DEBUG, logMessage)
 
         return state == 3
     }
@@ -480,7 +542,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun saveAndClear() {
-        Log.i(tag, "Clearing the image")
+        log(Log.INFO, "Clearing the image")
         saveDrawing()
         canvas.clear()
     }
@@ -569,13 +631,64 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun isGestureSupported() = isGameSensorUsed || isOrientationListenerUsed
+
+    /*
+     * Orientation change detector - used to detect gesture when (game) sensor is not available
+     * ========================================================================================
+     */
+
+    private fun startGestureDetectorByOrientationListener() {
+        if (!isGameSensorUsed) {
+            orientationListener = object : OrientationEventListener(applicationContext) {
+                override fun onOrientationChanged(orientationDeg: Int) {
+                    // Add the event to list of events
+                    addEventOrientation(orientationDeg)
+
+                    // Check if the gesture was performed
+                    if (gesturePerformed()) {
+                        onGesture()
+                    }
+                }
+            }
+
+            if (!orientationListener.canDetectOrientation()) {
+                log(Log.DEBUG, "Cannot use orientation listener to detect orientation changes")
+                log(Log.WARN, "Cannot detect orientation changes")
+                return
+            }
+
+            log(Log.INFO, "Using orientation listener to detect orientation changes")
+
+            isOrientationListenerUsed = true
+            orientationListener.enable()
+        }
+    }
+
+    private fun stopGestureDetectorByOrientationListener() {
+        if (isOrientationListenerUsed) {
+            orientationListener.disable()
+            isOrientationListenerUsed = false
+        }
+    }
+
+    private fun addEventOrientation(angleDeg: Int): Boolean {
+        val angleRad = Math.toRadians(angleDeg.toDouble()).toFloat()
+
+        val now = System.currentTimeMillis() * 1_000_000
+        val orientation = floatArrayOf(angleRad, 0f, 0f)
+        val record = OrientationRecord(now, orientation)
+
+        return addGestureRecordAndRemoveFarHistory(record)
+    }
+
     companion object {
         const val CHANNEL_ID = "MAIN_NOTIFICATION"
         const val NOTIFICATION_MAIN_ID = 0
         const val KEEPER_INTERVAL_SEC = 3
 
         const val SENSOR_HISTORY_NS = 1_500_000_000
-        const val SENSOR_ANGLE_OUT_RAD = 90 / 180f * PI
+        const val SENSOR_ANGLE_OUT_RAD = 89.5 / 180f * PI // Note: At business level, we say "turn by 90 degrees". At technival level, we use a slightly smaller threshold to correctly recognize the orientation changes by orientation listener (errors at the 7th decimal place).
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
         const val ACTION_QUIT = "ACTION_QUIT"
@@ -583,7 +696,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         const val ACTION_CLEAR = "ACTION_CLEAR"
         const val ACTION_SETTINGS = "ACTION_SETTINGS"
 
-        const val DRAWING_DIR_NAME = "DrawingForKids"
+        private const val DRAWING_DIR_NAME = "DrawingForKids"
         const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
 
         private var alarmManager: AlarmManager? = null
