@@ -17,7 +17,9 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        if (!isPremium()) {
+            firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        }
 
         val picturesDir = DrawingActivity.constructPicturesDir()
 
@@ -51,6 +53,11 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         fun isStandardVersion(): Boolean {
             return false // TODO version check
+        }
+
+        fun isPremium(): Boolean {
+            // TODO Implement payment
+            return false
         }
     }
 }

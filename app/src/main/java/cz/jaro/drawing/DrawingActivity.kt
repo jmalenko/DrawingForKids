@@ -22,8 +22,11 @@ import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import com.google.firebase.analytics.FirebaseAnalytics
 import cz.jaro.drawing.DrawingActivity.Companion.vectorInRadToStringInDeg
+import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_drawing.*
 import kotlinx.android.synthetic.main.activity_drawing_debug.*
 import java.io.*
@@ -85,7 +88,17 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         val actionBar = supportActionBar
         actionBar?.hide()
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        if (SettingsActivity.isPremium()) {
+            // Disable Crashlytics
+            val crashlyticsKit = Crashlytics.Builder()
+                    .core(CrashlyticsCore.Builder().disabled(true).build())
+                    .build()
+            // Initialize Fabric with the debug-disabled Crashlytics
+            Fabric.with(this, crashlyticsKit)
+        } else {
+            // Enable Analytics
+            firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        }
 
         // Start components
 
@@ -547,11 +560,13 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun saveAndClear() {
-        val bundle = Bundle()
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+        if (SettingsActivity.isPremium()) {
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+        }
 
         saveDrawing()
 
