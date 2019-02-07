@@ -73,7 +73,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     private var isGameSensorUsed = false
     private var isOrientationListenerUsed = false
 
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private var firebaseAnalytics: FirebaseAnalytics? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -565,7 +565,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+            firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
         }
 
         saveDrawing()
