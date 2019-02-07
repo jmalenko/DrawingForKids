@@ -22,6 +22,7 @@ import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
+import com.google.firebase.analytics.FirebaseAnalytics
 import cz.jaro.drawing.DrawingActivity.Companion.vectorInRadToStringInDeg
 import kotlinx.android.synthetic.main.activity_drawing.*
 import kotlinx.android.synthetic.main.activity_drawing_debug.*
@@ -69,6 +70,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     private var isGameSensorUsed = false
     private var isOrientationListenerUsed = false
 
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -81,6 +84,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         // Hide action bar
         val actionBar = supportActionBar
         actionBar?.hide()
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         // Start components
 
@@ -542,8 +547,15 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun saveAndClear() {
-        log(Log.INFO, "Clearing the image")
+        val bundle = Bundle()
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+
         saveDrawing()
+
+        log(Log.INFO, "Clearing the image")
         canvas.clear()
     }
 
