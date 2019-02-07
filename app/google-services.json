@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1083682307409",
+    "firebase_url": "https://drawing-for-kids-0-3y.firebaseio.com",
+    "project_id": "drawing-for-kids-0-3y",
+    "storage_bucket": "drawing-for-kids-0-3y.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083682307409:android:3e5ec1367b28d6ca",
+        "android_client_info": {
+          "package_name": "cz.jaro.drawing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083682307409-lrfc77nj8j0jv518fmpvuuka2aroe3ji.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl2kG14yfNyiTOKr1MR4NDGuedOozQ2CQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
