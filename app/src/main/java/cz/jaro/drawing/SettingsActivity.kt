@@ -33,16 +33,17 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        if (isStandardVersion()) {
+        if (isPremium()) {
+            buyButton.visibility = View.GONE
+            versionText.visibility = View.VISIBLE
+        } else {
             buyButton.visibility = View.VISIBLE
             versionText.visibility = View.GONE
 
             buyButton.setOnClickListener {
                 // TODO Implement buy
+                Toast.makeText(this, "Buy", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            buyButton.visibility = View.GONE
-            versionText.visibility = View.VISIBLE
         }
 
         feedbackButton.setOnClickListener {
@@ -51,10 +52,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     companion object {
-        fun isStandardVersion(): Boolean {
-            return false // TODO version check
-        }
-
         fun isPremium(): Boolean {
             // TODO Implement payment
             return false
