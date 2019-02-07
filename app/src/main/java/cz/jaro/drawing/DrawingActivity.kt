@@ -121,7 +121,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         startGestureDetectorByOrientationListener()
 
         // Create notification
-        createNotification()
+        startNotification()
     }
 
     // TODO In the the following workflow: 1. Start drawing, 2. Start setting from via notification action, 3. Press Home, 4. Wait till the drawing appears. The drawing would be empty after step 4.
@@ -162,7 +162,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // Stop components (in reverse order compared to onCreate() )
 
-        cancelNotification()
+        stopNotification()
 
         stopGestureDetectorByOrientationListener()
         stopGestureDetectorBySensor()
@@ -317,7 +317,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
      */
 
     @SuppressLint("PrivateResource")
-    private fun createNotification() {
+    private fun startNotification() {
         createNotificationChannel()
 
         val intent = Intent(this, DrawingActivity::class.java)
@@ -367,7 +367,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    private fun cancelNotification() {
+    private fun stopNotification() {
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_MAIN_ID)
     }
