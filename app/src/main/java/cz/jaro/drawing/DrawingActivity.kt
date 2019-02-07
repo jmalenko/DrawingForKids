@@ -342,7 +342,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
                 .addAction(R.drawable.ic_baseline_power_settings_new_24px, getString(R.string.notification_main_action_quit), quitPendingIntent)
 
         // Show clear action if the ensor is not used
-        if (isGestureSupported()) {
+        if (!isGestureSupported()) {
             val clearIntent = Intent(this, PublicReceiver::class.java).apply {
                 action = ACTION_CLEAR
             }
