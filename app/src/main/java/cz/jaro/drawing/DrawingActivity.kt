@@ -258,7 +258,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         // Show on screen if debug
         if (isDebug()) {
-            val lengthMax = 1000
+            val lengthMax = 10000
 
             var textOld = logText.text
             if (lengthMax < textOld.length) textOld = textOld.subSequence(0, 1000)
@@ -545,7 +545,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
-        log(Log.DEBUG, logMessage)
+//        log(Log.DEBUG, logMessage)
 
         return state == 3
     }
@@ -560,7 +560,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun saveAndClear() {
-        if (SettingsActivity.isPremium()) {
+        if (SettingsActivity.isPremium_old()) {
             val bundle = Bundle()
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
