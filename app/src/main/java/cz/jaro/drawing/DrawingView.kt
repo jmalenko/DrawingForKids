@@ -34,44 +34,49 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
-        Log.v(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}")
+        Log.d(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}, actionIndex=${event.getActionIndex()}")
 
-        for (pointerIndex in 0 until event.pointerCount) {
-            val pointerId = event.getPointerId(pointerIndex)
+        when (action) {
+            MotionEvent.ACTION_DOWN,
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                val pointerIndex = event.getActionIndex()
+                val pointerId = event.getPointerId(pointerIndex)
 
-            when (action) {
-                MotionEvent.ACTION_DOWN,
-                MotionEvent.ACTION_POINTER_DOWN -> {
-                    val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
+                val curve = MyCurve(context)
 
-                    val curve = MyCurve(context)
-                    curve.addPoint(point)
+                val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
+                curve.addPoint(point)
 
-                    curves[pointerId] = curve
+                curves[pointerId] = curve
 
-                    invalidate()
-                }
-                MotionEvent.ACTION_MOVE -> {
+                invalidate()
+            }
+            MotionEvent.ACTION_MOVE -> {
+                for (pointerIndex in 0 until event.pointerCount) {
+                    val pointerId = event.getPointerId(pointerIndex)
+                    Log.v(tag, "pointerIndex=$pointerIndex, pointerId=$pointerId, x=${Math.round(event.getX(pointerIndex))}, y=${Math.round(event.getY(pointerIndex))}")
                     val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
 
                     val curve = curves[pointerId]
                     if (curve != null) {
                         curve.addPoint(point)
-
-                        invalidate()
                     }
                 }
-                MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_POINTER_UP,
-                MotionEvent.ACTION_CANCEL -> {
-                    val curve = curves[pointerId]
-                    if (curve != null) {
-                        curve.draw(canvas)
+                invalidate()
+            }
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_POINTER_UP,
+            MotionEvent.ACTION_CANCEL -> {
+                val pointerIndex = event.getActionIndex()
+                val pointerId = event.getPointerId(pointerIndex)
 
-                        curves.remove(pointerId)
+                val curve = curves[pointerId]
+                if (curve != null) {
+                    curve.draw(canvas)
 
-                        invalidate()
-                    }
+                    curves.remove(pointerId)
+
+                    invalidate()
                 }
             }
         }
