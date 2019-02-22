@@ -72,7 +72,7 @@ class SettingsActivity : AppCompatActivity() {
 
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "feedback")
-                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, dialog.toString())
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, input.text.toString())
                 firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, bundle)
 
                 Toast.makeText(this, resources.getString(R.string.feedback_thank_you), Toast.LENGTH_SHORT).show()
