@@ -261,7 +261,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             val lengthMax = 10000
 
             var textOld = logText.text
-            if (lengthMax < textOld.length) textOld = textOld.subSequence(0, 1000)
+            if (lengthMax < textOld.length) textOld = textOld.subSequence(0, lengthMax)
 
             logText.text = "$message\n$textOld"
         }
