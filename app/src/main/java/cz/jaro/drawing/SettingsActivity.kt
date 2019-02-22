@@ -7,14 +7,26 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
+import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.Toast
+import com.android.billingclient.api.*
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_settings.*
+import java.io.File
 
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : AppCompatActivity(), PurchasesUpdatedListener {
+
+    private val tag = SettingsActivity::class.java.name
+
+    lateinit var billingClient: BillingClient
+    lateinit var premiumVersionskuDetails: SkuDetails
+
+    private val SKU_PREMIUM_VERSION = "premium_version"
+    private val skuList = listOf("get_5_coins", "get_10_coins", "premium_version") // XXX cleanup
 
     private var firebaseAnalytics: FirebaseAnalytics? = null
 
@@ -85,7 +97,11 @@ class SettingsActivity : AppCompatActivity() {
                 dialog.cancel()
             }
 
-            builder.show()
+            val dialog = builder.create()
+
+            dialog.getWindow()!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) // Show soft keyboard
+
+            dialog.show()
         }
     }
 
