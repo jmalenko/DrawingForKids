@@ -278,7 +278,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         // Construct the file name
         // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
         val imageTime = System.currentTimeMillis()
-        val imageDate = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date(imageTime))
+        val imageDate = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date(imageTime))
         val imageFileName = String.format(DRAWING_FILE_NAME_TEMPLATE, imageDate)
 
         // Save to external storage
