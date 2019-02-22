@@ -525,7 +525,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
             val o3 = sensorRecords[i + 1].orientations
             val angle2 = angleBetweenOrientations(o3, o2)
-            if (Math.PI / 9 < angle2)
+            if (Math.PI / 9 < angle2) // If there is a significant jump
                 logMessage += "  jump ${Math.round(Math.toDegrees(angle2))} deg"
 
             when (state) {
@@ -576,9 +576,12 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
     fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
         val orientationAngle = orientationAngle(o1, o2)
-        val rollAngle = rollAngle(o1, o2)
-        val angle = Math.max(orientationAngle, rollAngle)
-        return angle
+        if (Math.abs(o1[1]) < Math.PI / 3) { // If the device is NOT in horizontal position, consider also the roll
+            val rollAngle = rollAngle(o1, o2)
+            return Math.max(orientationAngle, rollAngle)
+        } else {
+            return orientationAngle
+        }
     }
 
     private fun rotationSensorValuesToOrientations(values: FloatArray): FloatArray {
@@ -598,6 +601,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         // Convert to orientations (in radians)
         val orientations = FloatArray(3)
         SensorManager.getOrientation(remappedRotationMatrix, orientations)
+
+        // Index    What        Range in degrees
+        // 0        Roll        -180 to 180
+        // 1        Pitch       -90 to 90
+        // 2        Azimuth     −180 to 180
 
         // Convert to orientations in degrees
 //        val orientationsDeg = FloatArray(3)
@@ -636,7 +644,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
      */
     private fun rollAngle(o1: FloatArray, o2: FloatArray): Double {
         val delta2 = o1[2] - o2[2]
-        val angle = Math.abs(delta2.toDouble())
+
+        var angle = delta2.toDouble()
+        if (angle < 0) angle = angle + 2 * Math.PI
+        if (Math.PI < angle) angle = 2 * Math.PI - angle
+
         return angle
     }
 
