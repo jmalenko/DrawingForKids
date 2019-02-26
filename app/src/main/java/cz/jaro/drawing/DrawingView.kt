@@ -34,12 +34,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
-        Log.d(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}, actionIndex=${event.getActionIndex()}")
+        Log.d(tag, "onTouchEvent() action=${actionToString(action)} ($action), pointerCount=${event.pointerCount}, actionIndex=${event.actionIndex}")
 
         when (action) {
             MotionEvent.ACTION_DOWN,
             MotionEvent.ACTION_POINTER_DOWN -> {
-                val pointerIndex = event.getActionIndex()
+                val pointerIndex = event.actionIndex
                 val pointerId = event.getPointerId(pointerIndex)
 
                 val curve = MyCurve(context)
@@ -67,7 +67,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_POINTER_UP,
             MotionEvent.ACTION_CANCEL -> {
-                val pointerIndex = event.getActionIndex()
+                val pointerIndex = event.actionIndex
                 val pointerId = event.getPointerId(pointerIndex)
 
                 val curve = curves[pointerId]
