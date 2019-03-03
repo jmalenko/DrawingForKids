@@ -1,19 +1,23 @@
 package cz.jaro.drawing
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.*
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -73,12 +77,14 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     private var isGameSensorUsed = false
     private var isOrientationListenerUsed = false
 
+    private lateinit var myPurchases: MyPurchases
+
     private var firebaseAnalytics: FirebaseAnalytics? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val layout = if (isDebug()) R.layout.activity_drawing_debug else R.layout.activity_drawing_debug
+        val layout = if (isDebug()) R.layout.activity_drawing_debug else R.layout.activity_drawing
         setContentView(layout)
 
         // Keep the screen on
@@ -88,7 +94,10 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         val actionBar = supportActionBar
         actionBar?.hide()
 
-        if (SettingsActivity.isPremium()) {
+        myPurchases = MyPurchases(this)
+        if (myPurchases.isPremium()) {
+            log(Log.INFO, "Premium version")
+
             // Disable Crashlytics
             val crashlyticsKit = Crashlytics.Builder()
                     .core(CrashlyticsCore.Builder().disabled(true).build())
@@ -96,6 +105,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             // Initialize Fabric with the debug-disabled Crashlytics
             Fabric.with(this, crashlyticsKit)
         } else {
+            log(Log.INFO, "Standard version")
+
             // Enable Analytics
             firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         }
@@ -275,21 +286,27 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
      */
 
     private fun saveDrawing() {
-        // Construct the file name
-        // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
-        val imageTime = System.currentTimeMillis()
-        val imageDate = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date(imageTime))
-        val imageFileName = String.format(DRAWING_FILE_NAME_TEMPLATE, imageDate)
+        checkPermission()
 
         // Save to external storage
         if (isExternalStorageWritable()) {
+            // Directory that stores images
             val picturesDir = constructPicturesDir()
 
             // Create the directory (relevant only the first time)
             if (!picturesDir.exists()) {
-                picturesDir.mkdirs()
+                val created = picturesDir.mkdirs()
+                if (!created) {
+                    log(Log.WARN, "Cannot save image because the directory ($picturesDir) cannot be created")
+                    return
+                }
             }
 
+            // Construct the file name
+            // Inspired by https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/screenshot/GlobalScreenshot.java#L138
+            val now = System.currentTimeMillis()
+            val formattedDate = SimpleDateFormat(DRAWING_FILE_NAME_DATE_FORMAT, Locale.US).format(Date(now))
+            val imageFileName = String.format(DRAWING_FILE_NAME_TEMPLATE, formattedDate)
             val imageFilePath = File(picturesDir, imageFileName).absolutePath
 
             // Save bitmap to file
@@ -302,13 +319,50 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
                 log(Log.WARN, "Cannot save image to $imageFilePath", e)
             }
         } else {
-            log(Log.ERROR, "Cannot save image because the external storage is not writable")
+            log(Log.WARN, "Cannot save image because the external storage is not writable")
         }
     }
 
     private fun isExternalStorageWritable(): Boolean {
         val state = Environment.getExternalStorageState()
         return Environment.MEDIA_MOUNTED == state
+    }
+
+    private fun checkPermission() {
+        // In API 23 (Marshmallow) and above, we need to request permissions at run time (because it's a dangerous permission).
+        val thisActivity = this
+        if (ContextCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                TODO("here and in settings - Red message \"The images are not being be saved! You need to grant permissin to write to external storage.\" + Buttone \"Grant permissin\"")
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(thisActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+
+                // PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE is an app-defined int constant. The callback method gets the result of the request.
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // Permission was granted. Do the contacts-related task you need to do.
+                } else {
+                    // Permission denied, Disable the functionality that depends on this permission.
+                }
+                return
+            }
+            else -> {
+                // Ignore all other requests.
+            }
+        }
     }
 
     /*
@@ -545,7 +599,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
-//        log(Log.DEBUG, logMessage)
+        log(Log.DEBUG, logMessage)
 
         return state == 3
     }
@@ -560,12 +614,12 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun saveAndClear() {
-        if (SettingsActivity.isPremium_old()) {
+        if (!myPurchases.isPremium()) {
             val bundle = Bundle()
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "clear")
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Clear")
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
-            firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
         }
 
         saveDrawing()
@@ -661,7 +715,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
     private fun vibrate() {
         val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
         if (v != null && v.hasVibrator()) {
-            val duration = 200L
+            val duration = 100L
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 v.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
@@ -736,7 +790,10 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         const val ACTION_SETTINGS = "ACTION_SETTINGS"
 
         private const val DRAWING_DIR_NAME = "DrawingForKids"
-        const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
+        private const val DRAWING_FILE_NAME_DATE_FORMAT = "yyyyMMdd_HHmmss"
+        private const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
+
+        private const val PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1
 
         private var alarmManager: AlarmManager? = null
         private lateinit var keeperIntent: PendingIntent

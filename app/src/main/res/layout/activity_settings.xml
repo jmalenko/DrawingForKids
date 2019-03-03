@@ -18,34 +18,34 @@
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="How to use"
+                android:text="@string/text_how_to_use"
                 android:textSize="24sp"
                 android:layout_marginTop="32dp"/>
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="The app can only be quitted from the notification by clocking on &quot;Quit&quot; action."
+                android:text="@string/text_how_to_use_1"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Clear the drawing by rotating the device by 90° and back."
+                android:text="@string/text_how_to_use_2"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="The drawings are saved into the following folder:"
+                android:text="@string/text_how_to_use_3"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="/sdcard/Pictures/DrawingForKidsSample"
+                android:text="/sdcard/Pictures/DrawingForKids (sample)"
                 android:id="@+id/savedDirectoryText"
                 android:textStyle="italic"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <Button
-                android:text="View saved drawings"
+                android:text="@string/button_view_saved_drawings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
@@ -55,30 +55,44 @@
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Premium"
+                android:text="@string/text_premium_version"
                 android:textSize="24sp"
                 android:layout_marginTop="32dp"/>
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="The standard version track the user (for anonymous analytics) and shows ads."
+                android:text="@string/text_premium_version_1"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="The premium version neither track the user nor shows ads."
+                android:text="@string/text_premium_version_2"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/text_premium_version_3"
+                android:id="@+id/billingClientStatus"
+                android:textStyle="italic"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <Button
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Buy premium"
+                android:text="@string/button_buy_premium"
                 android:id="@+id/buyButton"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp" android:padding="16dp"/>
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="You have the premium version."
-                android:id="@+id/versionText"
+                android:text="@string/text_premium_version_4"
+                android:id="@+id/priceText"
+                android:textStyle="italic"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+        <TextView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/text_premium_version_5"
+                android:id="@+id/premiumVersionText"
                 android:textStyle="italic"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
@@ -86,18 +100,18 @@
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Feedback"
+                android:text="@string/text_feedback"
                 android:textSize="24sp"
                 android:layout_marginTop="32dp"/>
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="We want to hear from you!"
+                android:text="@string/text_feedback_1"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
         <Button
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Provide feedback"
+                android:text="@string/text_feedback_2"
                 android:id="@+id/feedbackButton"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp" android:padding="16dp"/>
@@ -105,13 +119,13 @@
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="About the author"
+                android:text="@string/text_about_the_author"
                 android:textSize="24sp"
                 android:layout_marginTop="32dp"/>
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="I'm Jaromír Malenko. I created this app for my kids after I wasn't able to find a suitable drawing app for my two little girls."
+                android:text="@string/text_about_the_author_1"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="32dp"

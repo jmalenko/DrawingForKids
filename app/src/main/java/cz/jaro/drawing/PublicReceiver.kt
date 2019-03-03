@@ -44,9 +44,11 @@ class PublicReceiver : BroadcastReceiver() {
                 // Register for next time
                 DrawingActivity.registerKeeper(tag, context)
 
-                // If we are in Settings then do nothing
-                val isSettingsInForeground = isForeground(context, SettingsActivity::class.java.name) // Needed to detect when the wizard is running.
-                if (isSettingsInForeground)
+                // If we are in an app-related activity then return immediately
+                // TODO is this the correct detection of the billing activity?
+                val isARelatedActivityInForeground = isForeground(context, SettingsActivity::class.java.name) // Settings activity
+                        || isForeground(context, "com.google.android.finsky.billing.acquire.PhoenixAcquireActivity") // Activity displayed by the billing system with the "Buy" button
+                if (isARelatedActivityInForeground)
                     return
 
                 // Start the activity. The activity's onNewIntent(Intent) method is called in which we register the next event.

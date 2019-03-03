@@ -27,8 +27,14 @@ android {
         }
     }
     signingConfigs {
+        release {
+            storeFile file('Z:\\Dropbox\\data\\prog\\DrawingForKids\\DrawingForKids-key-store.jks')
+            storePassword '91c5fd3f1a0ce5558a519a86cca043ee986d5de961ae6e2eed7b9a92c35f291c'
+            keyAlias 'jaro'
+            keyPassword 'PN4UYqNVo2GVpbgMj1L6'
+        }
         debug {
-            storeFile file("key-debug.jks")
+            storeFile file('key-debug.jks')
             storePassword 'YWQshAnuVBGdekDc8zCq'
             keyAlias 'debug'
             keyPassword 'CFH9XSY38ra7WfUeKTNS'
@@ -44,6 +50,9 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+
+    implementation 'com.android.billingclient:billing:1.2'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

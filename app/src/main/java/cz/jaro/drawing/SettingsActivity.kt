@@ -12,21 +12,18 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.Toast
-import com.android.billingclient.api.*
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.SkuDetails
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_settings.*
 import java.io.File
 
-
-class SettingsActivity : AppCompatActivity(), PurchasesUpdatedListener {
+class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
 
     private val tag = SettingsActivity::class.java.name
 
-    lateinit var billingClient: BillingClient
-    lateinit var premiumVersionskuDetails: SkuDetails
-
-    private val SKU_PREMIUM_VERSION = "premium_version"
-    private val skuList = listOf("get_5_coins", "get_10_coins", "premium_version") // XXX cleanup
+    private lateinit var myPurchases: MyPurchases
 
     private var firebaseAnalytics: FirebaseAnalytics? = null
 
@@ -34,81 +31,144 @@ class SettingsActivity : AppCompatActivity(), PurchasesUpdatedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        if (!isPremium()) {
+        myPurchases = MyPurchases(this, this)
+        if (!myPurchases.isPremium()) {
             firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         }
 
+        // Update content
         val picturesDir = DrawingActivity.constructPicturesDir()
-
         savedDirectoryText.text = picturesDir.toString()
+        viewSavedButton.setOnClickListener { onViewSavedButtonClick(picturesDir) }
 
-        viewSavedButton.setOnClickListener {
-            val intent = Intent()
-            intent.action = Intent.ACTION_VIEW
-            intent.setDataAndType(Uri.fromFile(picturesDir), "image/*")
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+        buyButton.setOnClickListener { onBuyButtonClick() }
+        buyButton.visibility = View.GONE
+        priceText.visibility = View.GONE
+        premiumVersionText.visibility = View.GONE
+
+        feedbackButton.setOnClickListener { onFeedbackButtonClick() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        myPurchases.endBillingClient()
+    }
+
+    private fun onViewSavedButtonClick(picturesDir: File) {
+        val intent = Intent()
+        intent.action = Intent.ACTION_VIEW
+        intent.setDataAndType(Uri.fromFile(picturesDir), "image/*")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun onFeedbackButtonClick() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(resources.getString(R.string.feedback_title))
+        builder.setCancelable(false)
+
+        // Set up the input
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        input.hint = resources.getString(R.string.feedback_hint)
+
+        builder.setView(input)
+
+        // Set up the buttons
+        builder.setPositiveButton(getString(R.string.send)) { dialog: DialogInterface, i: Int ->
+            if (myPurchases.isPremium()) {
+                firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+            }
+
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "feedback")
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, input.text.toString())
+            firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, bundle)
+
+            Toast.makeText(this, resources.getString(R.string.feedback_thank_you), Toast.LENGTH_SHORT).show()
+
+            if (myPurchases.isPremium()) {
+                firebaseAnalytics = null
+            }
+        }
+        builder.setNegativeButton(R.string.cancel) { dialog: DialogInterface, i: Int ->
+            dialog.cancel()
         }
 
-        if (isPremium()) {
+        val dialog = builder.create()
+
+        dialog.window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) // Show soft keyboard
+
+        dialog.show()
+    }
+
+    private fun onBuyButtonClick() {
+        myPurchases.buy(MyPurchases.SKU_PREMIUM_VERSION)
+    }
+
+    private fun updateViews() {
+        if (myPurchases.isPremium()) {
             buyButton.visibility = View.GONE
-            versionText.visibility = View.VISIBLE
+            priceText.visibility = View.GONE
+            premiumVersionText.visibility = View.VISIBLE
         } else {
             buyButton.visibility = View.VISIBLE
-            versionText.visibility = View.GONE
-
-            buyButton.setOnClickListener {
-                // TODO Implement buy
-                Toast.makeText(this, "Buy", Toast.LENGTH_SHORT).show()
-            }
+            priceText.visibility = View.VISIBLE
+            premiumVersionText.visibility = View.GONE
         }
+        billingClientStatus.visibility = View.GONE
+    }
 
-        feedbackButton.setOnClickListener {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle(resources.getString(R.string.feedback_title))
-            builder.setCancelable(false)
-
-            // Set up the input
-            val input = EditText(this)
-            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            input.hint = resources.getString(R.string.feedback_hint)
-
-            builder.setView(input)
-
-            // Set up the buttons
-            builder.setPositiveButton("Send") { dialog: DialogInterface, i: Int ->
-                if (isPremium()) {
-                    firebaseAnalytics = FirebaseAnalytics.getInstance(this)
-                }
-
-                val bundle = Bundle()
-                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "feedback")
-                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, input.text.toString())
-                firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, bundle)
-
-                Toast.makeText(this, resources.getString(R.string.feedback_thank_you), Toast.LENGTH_SHORT).show()
-
-                if (isPremium()) {
-                    firebaseAnalytics = null
-                }
-            }
-            builder.setNegativeButton("Cancel") { dialog: DialogInterface, i: Int ->
-                dialog.cancel()
-            }
-
-            val dialog = builder.create()
-
-            dialog.getWindow()!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) // Show soft keyboard
-
-            dialog.show()
+    override fun onBillingSetupFinished(@BillingClient.BillingResponse billingResponseCode: Int) {
+        if (billingResponseCode == BillingClient.BillingResponse.OK) {
+            updateViews()
+        } else {
+            billingClientStatus.text = getString(R.string.billing_setup_error, MyPurchases.billingResponseCodeToString(billingResponseCode))
+            // TODO If the billing client is unavailable, maybe we should default to premium version (for some period of time)
         }
     }
 
-    companion object {
-        fun isPremium(): Boolean {
-            // TODO Implement payment
-            return false
+    override fun onBillingServiceDisconnected() {
+        billingClientStatus.text = getString(R.string.billing_service_disconnected)
+    }
+
+    override fun skuDetailsUpdated(responseCode: Int, skuDetailsMap: Map<String, SkuDetails>) {
+        if (responseCode == BillingClient.BillingResponse.OK) {
+            val premiumVersion = skuDetailsMap[MyPurchases.SKU_PREMIUM_VERSION]
+            if (premiumVersion != null) {
+                priceText.text = getString(R.string.text_premium_version_4, premiumVersion.price)
+            } else {
+                Log.w(tag, "Cannot get the price os premium version.")
+            }
         }
     }
+
+    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
+        if (!myPurchases.isPremium()) {
+            if (purchases != null) {
+                for (purchase in purchases) {
+                    val bundle = Bundle()
+
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "onPurchasesUpdated")
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, purchase.sku)
+                    bundle.putString(FirebaseAnalytics.Param.CREATIVE_NAME, MyPurchases.billingResponseCodeToString(responseCode))
+
+                    bundle.putLong(FirebaseAnalytics.Param.SUCCESS, if (responseCode == BillingClient.BillingResponse.OK) 1 else 0)
+
+                    firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, bundle)
+                }
+            }
+        }
+
+        updateViews()
+
+        if (purchases != null) {
+            val skuDetailsMap = purchases?.associateBy({ it.sku }, { it })
+            if (skuDetailsMap[MyPurchases.SKU_PREMIUM_VERSION] != null) {
+                // TODO Restart all the activities such that the non-tracking applies immediately
+            }
+        }
+    }
+
 }
