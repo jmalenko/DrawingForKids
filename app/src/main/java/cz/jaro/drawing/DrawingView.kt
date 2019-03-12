@@ -102,6 +102,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                         if (now - barsAppearedTime < TIME_AROUND_BARS) { // ... and status bar appeared in the last second
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and cancelling non-persistent curve ${curve.createTime % 1000}")
                             nonPersistedCurves.remove(curve)
+                            invalidate()
                         } else {
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and keeping non-persistent curve ${curve.createTime % 1000}")
                             curve.endTime = now
