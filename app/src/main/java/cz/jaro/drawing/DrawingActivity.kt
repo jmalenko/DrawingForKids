@@ -840,9 +840,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
          * @param intent       Intent to run on alarm time
          */
         private fun setSystemAlarm(alarmManager: AlarmManager, time: Calendar, intent: PendingIntent) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            /*if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
-            } else if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            } else*/ if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time.timeInMillis, intent)
