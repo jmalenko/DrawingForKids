@@ -807,7 +807,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         const val NOTIFICATION_MAIN_ID = 0
         const val KEEPER_INTERVAL_SEC = 3
 
-        const val SENSOR_HISTORY_NS = 4_500_000_000
+        const val SENSOR_HISTORY_NS = 1_500_000_000
         const val SENSOR_ANGLE_OUT_RAD = 89.5 / 180f * PI // Note: At business level, we say "turn by 90 degrees". At technical level, we use a slightly smaller threshold to correctly recognize the orientation changes by orientation listener (errors at the 7th decimal place).
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
