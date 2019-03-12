@@ -65,7 +65,7 @@ import kotlin.math.PI
  *   1. "Game rotation vector" sensor - can detect turn in all 3 dimensions. But the sensor may not be available on all devices (specifically, it is not availabale on Amazon Kindle Fire HD).
  *   2. Orientation event listener - can detect only turns around the Z axis. Is supported by most devices (including Amazon Kindle Fire HD).
  */
-class DrawingActivity : AppCompatActivity(), SensorEventListener {
+class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemUiVisibilityChangeListener {
 
     private val tag = DrawingActivity::class.java.name
 
@@ -86,6 +86,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
 
         val layout = if (isDebug()) R.layout.activity_drawing_debug else R.layout.activity_drawing
         setContentView(layout)
+
+        window.decorView.setOnSystemUiVisibilityChangeListener(this)
 
         // Keep the screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -152,9 +154,20 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener {
         // mode again in onWindowFocusChanged() ) and 2. after pressing power button (to turn off the screen) and pressing the power button again (to return to
         // the app, possibly with unlocking) the status bar was visible.
         window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or // hide nav bar
+                        View.SYSTEM_UI_FLAG_FULLSCREEN or // hide status bar
+                        View.SYSTEM_UI_FLAG_IMMERSIVE
+    }
+
+    override fun onSystemUiVisibilityChange(visibility: Int) {
+        log(Log.DEBUG, "onSystemUiVisibilityChange(visibility=$visibility)")
+        if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+            // The status bar and navigation bar are visible.
+            canvas.onBarsAppeared()
+        }
     }
 
     override fun onPause() {

@@ -15,6 +15,9 @@ class MyCurve(context: Context) {
     private val paint = Paint()
     private val width: Float
 
+    val createTime: Long = System.currentTimeMillis()
+    var endTime: Long = 0
+
     init {
         // Set stroke width
         width = mmToPx(STROKE_WIDTH_MM, context)
@@ -43,15 +46,29 @@ class MyCurve(context: Context) {
      * Draws the curve to the canvas.
      */
     fun draw(canvas: Canvas) {
-        if (0 < points.size) {
-            val point = points[0]
-            canvas.drawCircle(point.x, point.y, width / 2, paint)
+        for (i in 0 until points.size) {
+            drawSegment(canvas, i)
         }
+    }
 
-        for (i in 1 until points.size) {
-            val from = points[i - 1]
-            val to = points[i]
-            canvas.drawLine(from.x, from.y, to.x, to.y, paint)
+    /**
+     * Draws the curve last segment to the canvas.
+     */
+    fun drawLastSegment(canvas: Canvas) {
+        drawSegment(canvas, points.size - 1)
+    }
+
+    private fun drawSegment(canvas: Canvas, index: Int) {
+        when (index) {
+            0 -> {
+                val point = points[index]
+                canvas.drawCircle(point.x, point.y, width / 2, paint)
+            }
+            else -> {
+                val from = points[index]
+                val to = points[index - 1]
+                canvas.drawLine(from.x, from.y, to.x, to.y, paint)
+            }
         }
     }
 
