@@ -32,27 +32,57 @@
                 android:text="@string/text_how_to_use_2"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"/>
-        <TextView
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/text_how_to_use_3"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp"/>
-        <TextView
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="/sdcard/Pictures/DrawingForKids (sample)"
-                android:id="@+id/savedDirectoryText"
-                android:textStyle="italic"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp"
-                tools:ignore="HardcodedText"/>
-        <Button
-                android:text="@string/button_view_saved_drawings"
+
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:id="@+id/viewSavedButton"
-                android:layout_marginTop="8dp" android:padding="16dp"/>
+                android:id="@+id/noPermissions"
+                android:gravity="start">
 
+            <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/text_how_to_use_cannot_be_saved"
+                    android:textColor="@color/colorWarning"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"/>
+            <Button
+                    android:text="@string/button_grant_permissions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/grantPermissions"
+                    android:layout_marginTop="8dp" android:padding="16dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/hasPermissions"
+                android:gravity="start">
+
+            <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/text_how_to_use_3"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"/>
+            <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="/sdcard/Pictures/DrawingForKids (sample)"
+                    android:id="@+id/savedDirectoryText"
+                    android:textStyle="italic"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"
+                    tools:ignore="HardcodedText"/>
+            <Button
+                    android:text="@string/button_view_saved_drawings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/viewSavedButton"
+                    android:layout_marginTop="8dp" android:padding="16dp"/>
+        </LinearLayout>
 
         <TextView
                 android:layout_width="match_parent" android:layout_height="wrap_content"

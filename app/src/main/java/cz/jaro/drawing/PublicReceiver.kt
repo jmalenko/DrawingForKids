@@ -45,9 +45,11 @@ class PublicReceiver : BroadcastReceiver() {
                 DrawingActivity.registerKeeper(tag, context)
 
                 // If we are in an app-related activity then return immediately
-                // TODO is this the correct detection of the billing activity?
-                val isARelatedActivityInForeground = isForeground(context, SettingsActivity::class.java.name) // Settings activity
-                        || isForeground(context, "com.google.android.finsky.billing.acquire.PhoenixAcquireActivity") // Activity displayed by the billing system with the "Buy" button
+                val foregroundActivityClassName = getForegroundActivityClassName(context)
+                val isARelatedActivityInForeground =
+                        foregroundActivityClassName == SettingsActivity::class.java.name // Settings activity
+                                || foregroundActivityClassName == "com.google.android.finsky.billing.acquire.PhoenixAcquireActivity" // Activity displayed by the billing system with the "Buy" button
+                                || foregroundActivityClassName == "com.android.packageinstaller.permission.ui.GrantPermissionsActivity" // Activity that displays the dialog for granting permissions
                 if (isARelatedActivityInForeground)
                     return
 
@@ -78,12 +80,12 @@ class PublicReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun isForeground(context: Context, className: String): Boolean {
+    private fun getForegroundActivityClassName(context: Context): String {
         val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
         val task = manager.getRunningTasks(1)
-        if (task.isEmpty()) return true // The true value is needed for Robolectric tests
+        if (task.isEmpty()) return ""
         val componentInfo = task[0].topActivity
-        return componentInfo.className == className
+        return componentInfo.className
     }
 
     private fun doQuit(context: Context, intent: Intent) {

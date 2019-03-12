@@ -1,9 +1,13 @@
 package cz.jaro.drawing
 
+import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
@@ -37,6 +41,10 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         }
 
         // Update content
+        updateSavedDrawingsVisiblity()
+
+        grantPermissions.setOnClickListener { onSavedGrandPermission() }
+
         val picturesDir = DrawingActivity.constructPicturesDir()
         savedDirectoryText.text = picturesDir.toString()
         viewSavedButton.setOnClickListener { onViewSavedButtonClick(picturesDir) }
@@ -61,6 +69,31 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         intent.setDataAndType(Uri.fromFile(picturesDir), "image/*")
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+    }
+
+    private fun updateSavedDrawingsVisiblity() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            noPermissions.visibility = View.VISIBLE
+            hasPermissions.visibility = View.GONE
+        } else {
+            noPermissions.visibility = View.GONE
+            hasPermissions.visibility = View.VISIBLE
+        }
+    }
+
+    private fun onSavedGrandPermission() {
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), DrawingActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            DrawingActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE -> {
+                updateSavedDrawingsVisiblity()
+            }
+            else -> {
+                // Ignore all other requests.
+            }
+        }
     }
 
     private fun onFeedbackButtonClick() {
@@ -107,7 +140,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         myPurchases.buy(MyPurchases.SKU_PREMIUM_VERSION)
     }
 
-    private fun updateViews() {
+    private fun updateBuyVisibility() {
         if (myPurchases.isPremium()) {
             buyButton.visibility = View.GONE
             priceText.visibility = View.GONE
@@ -122,7 +155,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
 
     override fun onBillingSetupFinished(@BillingClient.BillingResponse billingResponseCode: Int) {
         if (billingResponseCode == BillingClient.BillingResponse.OK) {
-            updateViews()
+            updateBuyVisibility()
         } else {
             billingClientStatus.text = getString(R.string.billing_setup_error, MyPurchases.billingResponseCodeToString(billingResponseCode))
             // TODO If the billing client is unavailable, maybe we should default to premium version (for some period of time)
@@ -162,7 +195,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
             }
         }
 
-        updateViews()
+        updateBuyVisibility()
 
         if (purchases != null) {
             val skuDetailsMap = purchases.associateBy({ it.sku }, { it })

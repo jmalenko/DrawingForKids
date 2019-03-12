@@ -26,6 +26,7 @@ import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
+import android.widget.Toast
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -351,7 +352,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // Show an explanation to the user *asynchronously* -- don't block this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                TODO("here and in settings - Red message \"The images are not being be saved! You need to grant permission to write to external storage.\" + Button \"Grant permission\"")
+                Toast.makeText(thisActivity, resources.getString(R.string.toast_cannot_save), Toast.LENGTH_SHORT).show()
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(thisActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
@@ -366,11 +367,12 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE -> {
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // Permission was granted. Do the contacts-related task you need to do.
+                    // Permission was granted. Do the task you need to do.
+
+                    // Fact: after granting permission, the first image is not written to the storage.
                 } else {
                     // Permission denied, Disable the functionality that depends on this permission.
                 }
-                return
             }
             else -> {
                 // Ignore all other requests.
@@ -537,7 +539,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             return
 
         // Add the event to list of events
-        addEventSensor(event)
+        if (!addEventSensor(event))
+            return
 
         // Check if the gesture was performed
         if (gesturePerformed()) {
@@ -554,6 +557,16 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
     }
 
     private fun addGestureRecordAndRemoveFarHistory(record: OrientationRecord): Boolean {
+        if (isDebug()) {
+            if (!sensorRecords.isEmpty()) {
+                val o1 = sensorRecords[sensorRecords.size - 1].orientations
+                val o2 = record.orientations
+                val angle = angleBetweenOrientations(o1, o2)
+                if (angle < Math.PI / 18) // If there is a small change (less than 10 degrees)
+                    return false
+            }
+        }
+
         sensorRecords.add(record)
 
         // Remove old records from the list
@@ -612,7 +625,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             }
         }
 
-//        log(Log.DEBUG, logMessage)
+        log(Log.DEBUG, logMessage)
 
         return state == 3
     }
@@ -749,7 +762,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             orientationListener = object : OrientationEventListener(applicationContext) {
                 override fun onOrientationChanged(orientationDeg: Int) {
                     // Add the event to list of events
-                    addEventOrientation(orientationDeg)
+                    if (!addEventOrientation(orientationDeg))
+                        return
 
                     // Check if the gesture was performed
                     if (gesturePerformed()) {
@@ -793,7 +807,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         const val NOTIFICATION_MAIN_ID = 0
         const val KEEPER_INTERVAL_SEC = 3
 
-        const val SENSOR_HISTORY_NS = 1_500_000_000
+        const val SENSOR_HISTORY_NS = 4_500_000_000
         const val SENSOR_ANGLE_OUT_RAD = 89.5 / 180f * PI // Note: At business level, we say "turn by 90 degrees". At technical level, we use a slightly smaller threshold to correctly recognize the orientation changes by orientation listener (errors at the 7th decimal place).
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
@@ -806,7 +820,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         private const val DRAWING_FILE_NAME_DATE_FORMAT = "yyyyMMdd_HHmmss"
         private const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
 
-        private const val PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1
+        internal const val PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1
 
         private var alarmManager: AlarmManager? = null
         private lateinit var keeperIntent: PendingIntent
