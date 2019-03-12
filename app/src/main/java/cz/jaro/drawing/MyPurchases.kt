@@ -72,7 +72,7 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
     }
 
     override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        Log.d(tag, "onPurchasesUpdated(${responseCode}, $purchases?)")
+        Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
 
         listener?.onPurchasesUpdated(responseCode, purchases)
     }

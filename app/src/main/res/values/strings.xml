@@ -48,6 +48,8 @@
 
     <string name="billing_setup_error">Unable to get version. (Billing setup finished with code %1$s.)</string>
     <string name="billing_service_disconnected">Unable to get version. (Billing service disconnected.)</string>
-    <string name="billing_querySkuDetailsAsync_error">"Cannot update price. (querySkuDetailsAsync finished with code finished with code %1$s.)</string>
+    <string name="billing_querySkuDetailsAsync_error">"Cannot get the price of premium version. (querySkuDetailsAsync finished with code finished with code
+        %1$s.)
+    </string>
 
 </resources>

@@ -62,7 +62,7 @@ import kotlin.math.PI
  *
  * Technical notes:
  * - We use two approaches to detect gesture.
- *   1. "Game rotation vector" sensor - can detect turn in all 3 dimensions. But the sensor may not be available on all devices (specifically, it is not availabale on Amazon Kindle Fire HD).
+ *   1. "Game rotation vector" sensor - can detect turn in all 3 dimensions. But the sensor may not be available on all devices (specifically, it is not available on Amazon Kindle Fire HD).
  *   2. Orientation event listener - can detect only turns around the Z axis. Is supported by most devices (including Amazon Kindle Fire HD).
  */
 class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemUiVisibilityChangeListener {
@@ -351,7 +351,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // Show an explanation to the user *asynchronously* -- don't block this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                TODO("here and in settings - Red message \"The images are not being be saved! You need to grant permissin to write to external storage.\" + Buttone \"Grant permissin\"")
+                TODO("here and in settings - Red message \"The images are not being be saved! You need to grant permission to write to external storage.\" + Button \"Grant permission\"")
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(thisActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
@@ -408,7 +408,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_baseline_power_settings_new_24px, getString(R.string.notification_main_action_quit), quitPendingIntent)
 
-        // Show clear action if the ensor is not used
+        // Show clear action if the sensor is not used
         if (!isGestureSupported()) {
             val clearIntent = Intent(this, PublicReceiver::class.java).apply {
                 action = ACTION_CLEAR
@@ -612,7 +612,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             }
         }
 
-        log(Log.DEBUG, logMessage)
+//        log(Log.DEBUG, logMessage)
 
         return state == 3
     }
@@ -643,11 +643,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
     fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
         val orientationAngle = orientationAngle(o1, o2)
-        if (Math.abs(o1[1]) < Math.PI / 3) { // If the device is NOT in horizontal position, consider also the roll
+        return if (Math.abs(o1[1]) < Math.PI / 3) { // If the device is NOT in horizontal position, consider also the roll
             val rollAngle = rollAngle(o1, o2)
-            return Math.max(orientationAngle, rollAngle)
+            Math.max(orientationAngle, rollAngle)
         } else {
-            return orientationAngle
+            orientationAngle
         }
     }
 
@@ -713,7 +713,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         val delta2 = o1[2] - o2[2]
 
         var angle = delta2.toDouble()
-        if (angle < 0) angle = angle + 2 * Math.PI
+        if (angle < 0) angle += 2 * Math.PI
         if (Math.PI < angle) angle = 2 * Math.PI - angle
 
         return angle
@@ -794,7 +794,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         const val KEEPER_INTERVAL_SEC = 3
 
         const val SENSOR_HISTORY_NS = 1_500_000_000
-        const val SENSOR_ANGLE_OUT_RAD = 89.5 / 180f * PI // Note: At business level, we say "turn by 90 degrees". At technival level, we use a slightly smaller threshold to correctly recognize the orientation changes by orientation listener (errors at the 7th decimal place).
+        const val SENSOR_ANGLE_OUT_RAD = 89.5 / 180f * PI // Note: At business level, we say "turn by 90 degrees". At technical level, we use a slightly smaller threshold to correctly recognize the orientation changes by orientation listener (errors at the 7th decimal place).
         const val SENSOR_ANGLE_NEAR_RAD = 20 / 180f * PI
 
         const val ACTION_QUIT = "ACTION_QUIT"

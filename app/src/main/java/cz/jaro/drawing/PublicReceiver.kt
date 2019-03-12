@@ -78,7 +78,7 @@ class PublicReceiver : BroadcastReceiver() {
         }
     }
 
-    fun isForeground(context: Context, className: String): Boolean {
+    private fun isForeground(context: Context, className: String): Boolean {
         val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
         val task = manager.getRunningTasks(1)
         if (task.isEmpty()) return true // The true value is needed for Robolectric tests

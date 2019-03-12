@@ -19,7 +19,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     private val canvas: Canvas = Canvas()
 
     private val curves: MutableMap<Int, MyCurve> = HashMap() // Key is pointerId
-    private val nonPersisitedCurves: MutableSet<MyCurve> = HashSet()
+    private val nonPersistedCurves: MutableSet<MyCurve> = HashSet()
 
     private var barsAppearedTime: Long = 0 // Time in ms at which the notification bar (and navigation bar) appeared the last time
 
@@ -44,13 +44,13 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         // Switch non-persisted curves to persisted if they are old enough
         val now = System.currentTimeMillis()
         val toRemove: MutableSet<MyCurve> = HashSet()
-        for (curve in nonPersisitedCurves)
+        for (curve in nonPersistedCurves)
             if (TIME_AROUND_BARS < now - curve.createTime) { // If the curve is older than one second
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Persisting curve ${curve.createTime % 1000}")
                 toRemove.add(curve)
                 curve.draw(canvas)
             }
-        nonPersisitedCurves.removeAll(toRemove)
+        nonPersistedCurves.removeAll(toRemove)
 
         when (action) {
             MotionEvent.ACTION_DOWN,
@@ -66,7 +66,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 curves[pointerId] = curve
 
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Starting curve ${curve.createTime % 1000}")
-                nonPersisitedCurves.add(curve)
+                nonPersistedCurves.add(curve)
 
                 invalidate()
             }
@@ -80,7 +80,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                     if (curve != null) {
                         curve.addPoint(point)
 
-                        val isPersisted = !nonPersisitedCurves.contains(curve)
+                        val isPersisted = !nonPersistedCurves.contains(curve)
                         if (isPersisted)
                             curve.drawLastSegment(canvas)
                     }
@@ -97,11 +97,11 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 if (curve != null) {
                     curves.remove(pointerId)
 
-                    val isPersisted = !nonPersisitedCurves.contains(curve)
+                    val isPersisted = !nonPersistedCurves.contains(curve)
                     if (!isPersisted) // If the curve is non-persistent ...
                         if (now - barsAppearedTime < TIME_AROUND_BARS) { // ... and status bar appeared in the last second
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and cancelling non-persistent curve ${curve.createTime % 1000}")
-                            nonPersisitedCurves.remove(curve)
+                            nonPersistedCurves.remove(curve)
                         } else {
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and keeping non-persistent curve ${curve.createTime % 1000}")
                             curve.endTime = now
@@ -119,7 +119,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         canvas.drawBitmap(bitmap, 0f, 0f, null)
 
         // Draw non-persisted curves
-        for (curve in nonPersisitedCurves)
+        for (curve in nonPersistedCurves)
             curve.draw(canvas)
     }
 
@@ -132,7 +132,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     fun clear() {
         // Clear the open curves
         curves.clear()
-        nonPersisitedCurves.clear()
+        nonPersistedCurves.clear()
 
         // Clear the canvas
         val whitePaint = Paint()

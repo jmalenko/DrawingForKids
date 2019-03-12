@@ -139,7 +139,8 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
             if (premiumVersion != null) {
                 priceText.text = getString(R.string.text_premium_version_4, premiumVersion.price)
             } else {
-                Log.w(tag, "Cannot get the price os premium version.")
+                Log.w(tag, "Cannot get the price of premium version.")
+                priceText.text = getString(R.string.billing_querySkuDetailsAsync_error)
             }
         }
     }
@@ -164,7 +165,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         updateViews()
 
         if (purchases != null) {
-            val skuDetailsMap = purchases?.associateBy({ it.sku }, { it })
+            val skuDetailsMap = purchases.associateBy({ it.sku }, { it })
             if (skuDetailsMap[MyPurchases.SKU_PREMIUM_VERSION] != null) {
                 // TODO Restart all the activities such that the non-tracking applies immediately
             }
