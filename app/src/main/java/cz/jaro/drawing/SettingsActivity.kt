@@ -42,7 +42,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         }
 
         // Update content
-        updateSavedDrawingsVisiblity()
+        updateSavedDrawingsVisibility()
 
         grantPermissions.setOnClickListener { onSavedGrandPermission() }
 
@@ -79,7 +79,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         startActivity(intent)
     }
 
-    private fun updateSavedDrawingsVisiblity() {
+    private fun updateSavedDrawingsVisibility() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             noPermissions.visibility = View.VISIBLE
             hasPermissions.visibility = View.GONE
@@ -96,7 +96,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             DrawingActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE -> {
-                updateSavedDrawingsVisiblity()
+                updateSavedDrawingsVisibility()
             }
             else -> {
                 // Ignore all other requests.
