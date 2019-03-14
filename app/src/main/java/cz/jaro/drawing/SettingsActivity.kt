@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -66,8 +67,15 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
     private fun onViewSavedButtonClick(picturesDir: File) {
         val intent = Intent()
         intent.action = Intent.ACTION_VIEW
-        intent.setDataAndType(Uri.fromFile(picturesDir), "image/*")
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val uri: Uri
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = Uri.parse("content://" + picturesDir.path)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        } else {
+            uri = Uri.fromFile(picturesDir)
+        }
+        intent.setDataAndType(uri, "image/*") // TODO In  my testing, the mime type "image/*" did NOT work in any of the virtual devices (the gallery app started, but was showing black screen with some commands; it seemed that that was folder view, but without any images). The virtual devices worked with "*/*" mime type, but the list of all apps was shown for the user to pick up the one to use. Testing on Samsung Galaxy S7 with Android lower than N worked fine with "image/*" mime type.
         startActivity(intent)
     }
 
