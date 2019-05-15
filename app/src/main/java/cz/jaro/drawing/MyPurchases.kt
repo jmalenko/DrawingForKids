@@ -1,10 +1,9 @@
 package cz.jaro.drawing
 
 import android.app.Activity
+import android.preference.PreferenceManager
 import android.util.Log
 import com.android.billingclient.api.*
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Class represents information about billing via Google Play. That includes whether or not the Premium version was bought.
@@ -16,13 +15,12 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
     private lateinit var billingClient: BillingClient
 
     private var billingClientSetupResponseCode = SETUP_IN_PROGRESS
-    private val lock = ReentrantLock()
-    private val condition = lock.newCondition()
 
     private lateinit var skuDetailsMap: Map<String, SkuDetails>
 
     init {
-        setupBillingClient()
+        if (listener != null)
+            setupBillingClient()
     }
 
     private fun setupBillingClient() {
@@ -32,7 +30,6 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
                 .setListener(this)
                 .build()
 
-        Log.v(tag, "starting connection")
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(@BillingClient.BillingResponse billingResponseCode: Int) {
                 Log.d(tag, "onBillingSetupFinished()")
@@ -43,13 +40,7 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
                     Log.w(tag, "Billing client setup finished with response code  ${billingResponseCodeToString(billingResponseCode)} ($billingResponseCode)")
                 }
 
-                Log.v(tag, "onBillingSetupFinished() before lock")
-                lock.withLock {
-                    Log.v(tag, "onBillingSetupFinished() in lock")
-                    billingClientSetupResponseCode = billingResponseCode
-                    condition.signalAll()
-                }
-                Log.v(tag, "onBillingSetupFinished() after lock")
+                billingClientSetupResponseCode = billingResponseCode
 
                 listener?.onBillingSetupFinished(billingResponseCode)
             }
@@ -58,23 +49,11 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
                 Log.d(tag, "onBillingServiceDisconnected()")
                 Log.w(tag, "Billing client disconnected")
 
-                Log.v(tag, "onBillingServiceDisconnected() before lock")
-                lock.withLock {
-                    Log.v(tag, "onBillingServiceDisconnected() in lock")
-                    billingClientSetupResponseCode = BillingClient.BillingResponse.SERVICE_DISCONNECTED
-                    condition.signalAll()
-                }
-                Log.v(tag, "onBillingServiceDisconnected() after lock")
+                billingClientSetupResponseCode = BillingClient.BillingResponse.SERVICE_DISCONNECTED
 
                 listener?.onBillingServiceDisconnected()
             }
         })
-    }
-
-    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
-
-        listener?.onPurchasesUpdated(responseCode, purchases)
     }
 
     fun endBillingClient() {
@@ -111,39 +90,41 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
         billingClient.launchBillingFlow(activity, billingFlowParams)
     }
 
-    fun isPremium(): Boolean {
-        Log.d(tag, "isPremium()")
-        // TODO The billingClient setup is asynchronous. But we often use the premium version check synchronously. That's why we wait here to finish the setup.. (TODO remove verbose logging)
-//        lock.withLock {
-//            Log.d(tag, "isPremium() in lock")
-//            while (billingClientSetupResponseCode == SETUP_IN_PROGRESS) {
-//                Log.v(tag, "isPremium(): Waiting for billing setup to finish...")
-//                try {
-//                    condition.await()
-//                } catch (e: InterruptedException) {
-//                    Log.w(tag, "Error while waiting  for billing setup to finish", e)
-//                }
-//            }
-//        }
-        Log.v(tag, "isPremium() after lock")
+    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
+        Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
 
-        Log.v(tag, "isPremium() continues after waiting for billing setup to finish")
+        // Check for the purchase of premium version
+        if (responseCode == BillingClient.BillingResponse.OK) {
+            if (purchases != null) {
+                val skuDetailsMap = purchases.associateBy({ it.sku }, { it })
+                if (skuDetailsMap[SKU_PREMIUM_VERSION] != null) {
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+                    val editor = preferences.edit()
 
-        val purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP)
+                    editor.putBoolean(PREF_PREMIUM_VERSION, true)
 
-        if (purchasesResult.purchasesList == null) // Needed for cases when we use billingClient before it's setup finished. In my experiments, the setup is finished synchronously if successful (although the method is asynchronous).
-            return false
-
-        val skuDetailsMap = purchasesResult.purchasesList.associateBy({ it.sku }, { it })
-        if (skuDetailsMap[SKU_PREMIUM_VERSION] != null) {
-            return true
+                    editor.apply()
+                }
+            }
         }
 
-        return false
+        listener?.onPurchasesUpdated(responseCode, purchases)
+    }
+
+    fun isPremium(): Boolean {
+        Log.d(tag, "isPremium()")
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+        val premiumVersion = preferences.getBoolean(PREF_PREMIUM_VERSION, PREF_PREMIUM_VERSION_DEFAULT)
+
+        return premiumVersion
     }
 
     companion object {
         const val SKU_PREMIUM_VERSION = "premium_version"
+
+        const val PREF_PREMIUM_VERSION = "PREF_PREMIUM_VERSION"
+        const val PREF_PREMIUM_VERSION_DEFAULT = false
 
         const val SETUP_IN_PROGRESS = -1000 // Note: this must be a value that is not used in BillingClient.BillingResponse
 
