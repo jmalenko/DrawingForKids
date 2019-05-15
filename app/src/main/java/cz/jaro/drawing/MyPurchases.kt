@@ -43,6 +43,12 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
                 billingClientSetupResponseCode = billingResponseCode
 
                 listener?.onBillingSetupFinished(billingResponseCode)
+
+                // Refresh purchases (synchronously)
+                if (listener != null) {
+                    val purchasesResult: Purchase.PurchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP)
+                    onPurchasesUpdated_(purchasesResult.responseCode, purchasesResult.purchasesList)
+                }
             }
 
             override fun onBillingServiceDisconnected() {
@@ -90,23 +96,26 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
         billingClient.launchBillingFlow(activity, billingFlowParams)
     }
 
-    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
-
-        // Check for the purchase of premium version
+    fun onPurchasesUpdated_(responseCode: Int, purchases: MutableList<Purchase>?) {
+        // Check for the purchases
         if (responseCode == BillingClient.BillingResponse.OK) {
             if (purchases != null) {
                 val skuDetailsMap = purchases.associateBy({ it.sku }, { it })
-                if (skuDetailsMap[SKU_PREMIUM_VERSION] != null) {
-                    val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
-                    val editor = preferences.edit()
+                val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+                val editor = preferences.edit()
 
-                    editor.putBoolean(PREF_PREMIUM_VERSION, true)
+                // Premium version
+                editor.putBoolean(PREF_PREMIUM_VERSION, skuDetailsMap[SKU_PREMIUM_VERSION] != null)
 
-                    editor.apply()
-                }
+                editor.apply()
             }
         }
+    }
+
+    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
+        Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
+
+        onPurchasesUpdated_(responseCode, purchases)
 
         listener?.onPurchasesUpdated(responseCode, purchases)
     }
