@@ -176,7 +176,6 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
             updateBuyVisibility()
         } else {
             billingClientStatus.text = getString(R.string.billing_setup_error, MyPurchases.billingResponseCodeToString(billingResponseCode))
-            // TODO If the billing client is unavailable, maybe we should default to premium version (for some period of time)
         }
     }
 
