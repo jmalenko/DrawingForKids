@@ -12,32 +12,28 @@ android {
         applicationId "cz.jaro.drawing"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 2
-        versionName "2.0"
+        versionCode 4
+        versionName "4.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            versionNameSuffix "-debug"
-            debuggable true
-        }
-    }
     signingConfigs {
-        release {
-            storeFile file('Z:\\Dropbox\\data\\prog\\DrawingForKids\\DrawingForKids-key-store.jks')
-            storePassword '91c5fd3f1a0ce5558a519a86cca043ee986d5de961ae6e2eed7b9a92c35f291c'
-            keyAlias 'jaro'
-            keyPassword 'PN4UYqNVo2GVpbgMj1L6'
-        }
-        debug {
+        myconfig {
             storeFile file('key-debug.jks')
             storePassword 'YWQshAnuVBGdekDc8zCq'
             keyAlias 'debug'
             keyPassword 'CFH9XSY38ra7WfUeKTNS'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.myconfig
+        }
+        debug {
+            versionNameSuffix "-debug"
+            debuggable true
+            signingConfig signingConfigs.myconfig
         }
     }
 }
@@ -48,9 +44,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
 
-    implementation 'com.google.firebase:firebase-core:16.0.6'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
-
+    implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'
     implementation 'com.android.billingclient:billing:1.2'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
