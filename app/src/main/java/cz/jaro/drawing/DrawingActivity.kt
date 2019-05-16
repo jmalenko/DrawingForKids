@@ -301,8 +301,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
      */
 
     private fun saveDrawing() {
-        if (checkPermission())
-            saveDrawingWithPermission(canvas.bitmap)
+        if (!canvas.empty)
+            if (checkPermission())
+                saveDrawingWithPermission(canvas.bitmap)
     }
 
     private fun saveDrawingWithPermission(bitmap: Bitmap) {

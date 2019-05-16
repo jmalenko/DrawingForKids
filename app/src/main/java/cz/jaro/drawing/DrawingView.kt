@@ -17,6 +17,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     internal var bitmap: Bitmap
     private val canvas: Canvas = Canvas()
+    var empty: Boolean = true
 
     private val curves: MutableMap<Int, MyCurve> = HashMap() // Key is pointerId
     private val nonPersistedCurves: MutableSet<MyCurve> = HashSet()
@@ -68,6 +69,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Starting curve ${curve.createTime % 1000}")
                 nonPersistedCurves.add(curve)
 
+                empty = false
                 invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
@@ -140,6 +142,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         whitePaint.color = Color.WHITE
         whitePaint.style = Paint.Style.FILL
         canvas.drawPaint(whitePaint)
+
+        empty = true
 
         invalidate()
     }
