@@ -58,6 +58,16 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         feedbackButton.setOnClickListener { onFeedbackButtonClick() }
     }
 
+    override fun onStop() {
+        // This needed to achieve the following: if the user is in SettingsActivity and presses Home button, all the activities are stopped. Then,
+        // when the Keeper start the DrawingActivity, a new task is started; that means that new DrawingActivity is started.
+        // That is because the SettingsActivity is on top of the Back Stack and that the SettingsActivity is stopped.
+        // We fix that by finishing the SettingsActivity whenever it is stopped. That leaves the stopped DrawingActivity on top of the Back Stack and guarantees
+        // that the DrawingActivity is properly started by Keeper.
+        super.onStop()
+        finish()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
