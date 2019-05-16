@@ -80,6 +80,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
     private lateinit var myPurchases: MyPurchases
 
+    private var bitmapToSave : Bitmap? = null // Contains the bitmap to be saved just after the user grants permission
+
     private var firebaseAnalytics: FirebaseAnalytics? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -300,8 +302,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
      */
 
     private fun saveDrawing() {
-        checkPermission()
+        if (checkPermission())
+            saveDrawingWithPermission(canvas.bitmap)
+    }
 
+    private fun saveDrawingWithPermission(bitmap: Bitmap) {
         // Save to external storage
         if (isExternalStorageWritable()) {
             // Directory that stores images
@@ -326,7 +331,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             // Save bitmap to file
             try {
                 FileOutputStream(imageFilePath).use { out ->
-                    canvas.bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 }
                 log(Log.INFO, "Image saved to $imageFilePath")
             } catch (e: IOException) {
@@ -342,7 +347,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         return Environment.MEDIA_MOUNTED == state
     }
 
-    private fun checkPermission() {
+    private fun checkPermission(): Boolean {
         // In API 23 (Marshmallow) and above, we need to request permissions at run time (because it's a dangerous permission).
         val thisActivity = this
         if (ContextCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -354,11 +359,17 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 // sees the explanation, try again to request the permission.
                 Toast.makeText(thisActivity, resources.getString(R.string.toast_cannot_save), Toast.LENGTH_SHORT).show()
             } else {
+                // Save the current drawing
+                bitmapToSave = canvas.bitmap.copy(canvas.bitmap.getConfig(), false)
+
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(thisActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
 
                 // PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE is an app-defined int constant. The callback method gets the result of the request.
             }
+            return false
+        } else {
+            return true
         }
     }
 
@@ -369,7 +380,11 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // Permission was granted. Do the task you need to do.
 
-                    // Fact: after granting permission, the first image is not written to the storage.
+                    // Save the current image
+                    if (bitmapToSave != null) {
+                        saveDrawingWithPermission(bitmapToSave!!)
+                        bitmapToSave = null
+                    }
                 } else {
                     // Permission denied, Disable the functionality that depends on this permission.
                 }
