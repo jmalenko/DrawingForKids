@@ -24,7 +24,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.OrientationEventListener
 import android.view.View
-import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.Toast
 import com.crashlytics.android.Crashlytics
@@ -93,7 +92,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         window.decorView.setOnSystemUiVisibilityChangeListener(this)
 
         // Keep the screen on
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // Hide action bar
         val actionBar = supportActionBar
@@ -246,8 +245,8 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
      * - disable_keyguard permissions are unsupported
      */
     private fun isKindleFire(): Boolean {
-        return android.os.Build.MANUFACTURER == "Amazon" &&
-                (android.os.Build.MODEL == "Kindle Fire" || android.os.Build.MODEL.startsWith("KF"))
+        return Build.MANUFACTURER == "Amazon" &&
+                (Build.MODEL == "Kindle Fire" || Build.MODEL.startsWith("KF"))
     }
 
     /*
