@@ -15,9 +15,9 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     private val tag = DrawingView::class.java.name
 
-    internal var bitmap: Bitmap
+    private var bitmap: Bitmap
     private val canvas: Canvas = Canvas()
-    var empty: Boolean = true
+    private var hasPersistedCurve: Boolean = false
 
     private val curves: MutableMap<Int, MyCurve> = HashMap() // Key is pointerId
     private val nonPersistedCurves: MutableSet<MyCurve> = HashSet()
@@ -50,6 +50,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Persisting curve ${curve.createTime % 1000}")
                 toRemove.add(curve)
                 curve.draw(canvas)
+                hasPersistedCurve = true
             }
         nonPersistedCurves.removeAll(toRemove)
 
@@ -69,7 +70,6 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Starting curve ${curve.createTime % 1000}")
                 nonPersistedCurves.add(curve)
 
-                empty = false
                 invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
@@ -143,9 +143,23 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         whitePaint.style = Paint.Style.FILL
         canvas.drawPaint(whitePaint)
 
-        empty = true
+        hasPersistedCurve = false
 
         invalidate()
+    }
+
+    fun isEmpty(): Boolean {
+        return !hasPersistedCurve && nonPersistedCurves.isEmpty()
+    }
+
+    @SuppressLint("WrongCall")
+    fun getDrawingBitmap(): Bitmap {
+        val out = bitmap.copy(bitmap.getConfig(), true)
+        val canvas = Canvas(out)
+
+        onDraw(canvas)
+
+        return out
     }
 
     private fun getActivity(): Activity? {

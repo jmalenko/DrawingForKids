@@ -299,9 +299,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
      */
 
     private fun saveDrawing() {
-        if (!canvas.empty)
+        if (!canvas.isEmpty())
             if (checkPermission())
-                saveDrawingWithPermission(canvas.bitmap)
+                saveDrawingWithPermission(canvas.getDrawingBitmap())
     }
 
     private fun saveDrawingWithPermission(bitmap: Bitmap) {
@@ -358,7 +358,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 Toast.makeText(thisActivity, resources.getString(R.string.toast_cannot_save), Toast.LENGTH_SHORT).show()
             } else {
                 // Save the current drawing
-                bitmapToSave = canvas.bitmap.copy(canvas.bitmap.getConfig(), false)
+                bitmapToSave = canvas.getDrawingBitmap()
 
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(thisActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
