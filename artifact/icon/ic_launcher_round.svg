@@ -15,9 +15,9 @@
         version="1.1"
         viewBox="0 0 48 48.000001"
         width="48"
-        inkscape:export-filename="Z:\ic_launcher_round.png"
-        inkscape:export-xdpi="181.89"
-        inkscape:export-ydpi="181.89"
+        inkscape:export-filename="Z:\workspace-android\DrawingForKids\app\src\main\res\mipmap-xxxhdpi\ic_launcher_round.png"
+        inkscape:export-xdpi="485.05264"
+        inkscape:export-ydpi="485.05264"
         inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
         sodipodi:docname="ic_launcher_round.svg">
   <defs
@@ -88,8 +88,8 @@
      showguides="true"
      units="px"
      inkscape:current-layer="layer3"
-     inkscape:cx="5.3440408"
-     inkscape:cy="15.396047"
+     inkscape:cx="-139.20717"
+     inkscape:cy="27.626222"
      inkscape:document-units="px"
      inkscape:guide-bbox="true"
      inkscape:pageopacity="0.0"
@@ -99,7 +99,7 @@
      inkscape:window-width="1856"
      inkscape:window-x="56"
      inkscape:window-y="-8"
-     inkscape:zoom="13.096207">
+     inkscape:zoom="1.6370259">
     <inkscape:grid
        dotted="false"
        empspacing="48"
