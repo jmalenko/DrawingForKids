@@ -78,10 +78,10 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
             Log.v(tag, "querySkuDetailsAsync() body")
             if (responseCode == BillingClient.BillingResponse.OK) {
                 skuDetailsMap = skuDetailsList.associateBy({ it.sku }, { it })
+
+                listener?.skuDetailsUpdated(responseCode, skuDetailsMap)
             }
-            listener?.skuDetailsUpdated(responseCode, skuDetailsMap)
         }
-        Log.v(tag, "updateSkuDetails() finished")
     }
 
     fun buy(sku: String) {
