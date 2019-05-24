@@ -24,6 +24,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     private var barsAppearedTime: Long = 0 // Time in ms at which the notification bar (and navigation bar) appeared the last time
 
+    private var lastColor = Color.TRANSPARENT // The color of the last completed curve
+
     init {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888) // Use a constant size. This will be resized in onSizeChanged(...) which will be called before the activity appears
         canvas.setBitmap(bitmap)
@@ -60,7 +62,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 val pointerIndex = event.actionIndex
                 val pointerId = event.getPointerId(pointerIndex)
 
-                val curve = MyCurve(context)
+                // The color of last completed curve is forbidden.
+                val curve = MyCurve(context, lastColor)
 
                 val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
                 curve.addPoint(point)
@@ -98,6 +101,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 val curve = curves[pointerId]
                 if (curve != null) {
                     curves.remove(pointerId)
+
+                    lastColor = curve.color()
 
                     val isPersisted = !nonPersistedCurves.contains(curve)
                     if (!isPersisted) // If the curve is non-persistent ...
