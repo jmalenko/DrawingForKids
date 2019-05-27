@@ -131,9 +131,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         // Draw image (with finished curved)
         canvas.drawBitmap(bitmap, 0f, 0f, null)
 
-        // Draw non-persisted curves
-        for (curve in nonPersistedCurves)
-            curve.draw(canvas)
+        // Draw non-persisted curves (in the order as they were drawn)
+        nonPersistedCurves.toList().sortedBy { it.createTime }.forEach { it.draw(canvas) }
     }
 
     fun onBarsAppeared() {
