@@ -9,7 +9,7 @@ import android.util.TypedValue
 import java.util.*
 import kotlin.collections.ArrayList
 
-class MyCurve(context: Context, forbiddenColor: Int) {
+class MyCurve(context: Context, forbiddenColors: Set<Int>) {
 
     private val points: MutableList<PointF> = ArrayList()
     private val paint = Paint()
@@ -29,14 +29,16 @@ class MyCurve(context: Context, forbiddenColor: Int) {
         paint.strokeCap = Paint.Cap.ROUND
 
         // Set stroke color
-        // Pick a random color and check that it is not fordidden.
+        // Pick a random color and check that it is not forbidden.
         val random = Random()
-        var randomColorId = colors[random.nextInt(MyCurve.colors.size)]
-        var color = ContextCompat.getColor(context, randomColorId)
-        while (color == forbiddenColor) {
-            randomColorId = colors[random.nextInt(MyCurve.colors.size)]
+        var color: Int
+        var round = 0
+        do {
+            round++
+
+            val randomColorId = colors[random.nextInt(MyCurve.colors.size)]
             color = ContextCompat.getColor(context, randomColorId)
-        }
+        } while (forbiddenColors.contains(color) && round < 100)
         paint.color = color
     }
 

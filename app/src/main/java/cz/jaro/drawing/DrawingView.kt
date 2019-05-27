@@ -63,7 +63,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                 val pointerId = event.getPointerId(pointerIndex)
 
                 // The color of last completed curve is forbidden.
-                val curve = MyCurve(context, lastColor)
+                val forbiddenColors = HashSet<Int>()
+                forbiddenColors.add(lastColor)
+                for (curve in curves.values) {
+                    forbiddenColors.add(curve.color())
+                }
+                val curve = MyCurve(context, forbiddenColors)
 
                 val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
                 curve.addPoint(point)
