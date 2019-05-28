@@ -11,7 +11,8 @@
 
     <string name="first_start_dialog__title">Welcome to Drawing for Kids 0–3Y</string>
     <string name="first_start_dialog__message">
-        The app does all kinds of tricks to remain the only thing the kids can interact with.\n\nRemember: The only way to quit the drawing app is via the notification; choose the \"Quit\" action there.
+        The app does all kinds of tricks to remain the only thing the kids can interact with.\n\nRemember: The only way to quit the drawing app is via the
+        notification; choose the \"Quit\" action there.\n\nClean the drawing by rotating the phone (at least 90 degrees there and back).
     </string>
     <string name="first_start_dialog__button">OK</string>
 
