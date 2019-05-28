@@ -163,7 +163,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     @SuppressLint("WrongCall")
     fun getDrawingBitmap(): Bitmap {
-        val out = bitmap.copy(bitmap.getConfig(), true)
+        val out = bitmap.copy(bitmap.config, true)
         val canvas = Canvas(out)
 
         onDraw(canvas)

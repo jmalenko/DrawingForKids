@@ -81,7 +81,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
     private lateinit var myPurchases: MyPurchases
 
-    private var bitmapToSave : Bitmap? = null // Contains the bitmap to be saved just after the user grants permission
+    private var bitmapToSave: Bitmap? = null // Contains the bitmap to be saved just after the user grants permission
 
     private var firebaseAnalytics: FirebaseAnalytics? = null
 
@@ -713,6 +713,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
         return orientations
     }
+
     /**
      * Returns the angle between [orientations [o1] and [o2]. Ignores the roll.
      * @param o1 Orientation, in radians.
