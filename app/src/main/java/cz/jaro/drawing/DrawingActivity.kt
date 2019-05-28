@@ -14,6 +14,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.*
+import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
@@ -50,6 +51,7 @@ import kotlin.math.PI
  * - A notification exists during the life of the activity - for quitting the app
  * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
  * - Save the image on quit and before it is cleared
+ * - On first start, Show a dialog explaining how to quit the app
  *
  * The activity can be quit (only) byt the following
  * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen sticky immersive mode), 2. press the Quit action in the notification
@@ -137,6 +139,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
         // Create notification
         startNotification()
+
+        // On first run...
+        checkFirstRun()
     }
 
     override fun onResume() {
@@ -815,6 +820,43 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         return addGestureRecordAndRemoveFarHistory(record)
     }
 
+    /*
+     * First run
+     * =========
+     */
+
+    private fun checkFirstRun() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val firstRunCompleted = preferences.getBoolean(PREFERENCES_FIRST_RUN_COMPLETED, PREFERENCES_FIRST_RUN_COMPLETED__DEFAULT)
+        if (!firstRunCompleted) {
+            onFirstRunActionStart()
+        }
+    }
+
+    private fun onFirstRunActionStart() {
+        val alertDialog = AlertDialog.Builder(this).create()
+        with(alertDialog) {
+            setTitle(resources.getString(R.string.first_start_dialog__title))
+            setMessage(resources.getString(R.string.first_start_dialog__message))
+            setButton(AlertDialog.BUTTON_NEUTRAL, resources.getString(R.string.first_start_dialog__button)) { _, _ ->
+                alertDialog.dismiss()
+                onFirstRunActionEnd()
+            }
+            show()
+        }
+    }
+
+    private fun onFirstRunActionEnd() {
+        // Remember the the dialogue was displayed
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        preferences
+                .edit()
+                .putBoolean(PREFERENCES_FIRST_RUN_COMPLETED, !PREFERENCES_FIRST_RUN_COMPLETED__DEFAULT)
+                .apply()
+    }
+
     companion object {
         const val CHANNEL_ID = "MAIN_NOTIFICATION"
         const val NOTIFICATION_MAIN_ID = 0
@@ -832,6 +874,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         private const val DRAWING_DIR_NAME = "DrawingForKids"
         private const val DRAWING_FILE_NAME_DATE_FORMAT = "yyyyMMdd_HHmmss"
         private const val DRAWING_FILE_NAME_TEMPLATE = "%s.png"
+
+        const val PREFERENCES_FIRST_RUN_COMPLETED = "FIRSTRUNCOMPLETED"
+        const val PREFERENCES_FIRST_RUN_COMPLETED__DEFAULT = false
 
         internal const val PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1
 
