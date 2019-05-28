@@ -2,7 +2,7 @@
 
 Repository for the Drawing for Kids 0–3Y application.
 
-The app is distributed via [Google Play](https://play.google.com/store/apps/details?id=cz.jaro.drawing) or get the APK [here](https://github.com/jmalenko/DrawingForKids/tree/master/artifact/release).
+The app is distributed via [Google Play](https://play.google.com/store/apps/details?id=cz.jaro.drawing) or get the APK [here](https://github.com/jmalenko/DrawingForKids/tree/master/artifact/release/DrawingForKids-latest.apk).
 
 ## Description
 
