@@ -427,6 +427,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_baseline_power_settings_new_24px, getString(R.string.notification_main_action_quit), quitPendingIntent)
+        // TODO Always show the notification with expanded action buttons (currently unsupported by Android API)
 
         // Show clear action if the sensor is not used
         if (!isGestureSupported()) {
