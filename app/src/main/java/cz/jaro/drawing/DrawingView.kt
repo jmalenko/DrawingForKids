@@ -47,13 +47,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         // Switch non-persisted curves to persisted if they are old enough
         val now = System.currentTimeMillis()
         val toRemove: MutableSet<MyCurve> = HashSet()
-        for (curve in nonPersistedCurves)
+        nonPersistedCurves.toList().sortedBy { it.createTime }.forEach { curve ->
             if (TIME_AROUND_BARS < now - curve.createTime) { // If the curve is older than one second
                 (getActivity() as DrawingActivity).log(Log.DEBUG, "Persisting curve ${curve.createTime % 1000}")
                 toRemove.add(curve)
                 curve.draw(canvas)
                 hasPersistedCurve = true
             }
+        }
         nonPersistedCurves.removeAll(toRemove)
 
         when (action) {
