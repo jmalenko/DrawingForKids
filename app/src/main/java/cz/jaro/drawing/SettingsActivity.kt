@@ -1,7 +1,6 @@
 package cz.jaro.drawing
 
 import android.Manifest
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -127,7 +126,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         builder.setView(input)
 
         // Set up the buttons
-        builder.setPositiveButton(getString(R.string.send)) { dialog: DialogInterface, i: Int ->
+        builder.setPositiveButton(getString(R.string.send)) { _, _ ->
             if (myPurchases.isPremium()) {
                 firebaseAnalytics = FirebaseAnalytics.getInstance(this)
             }
@@ -143,7 +142,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
                 firebaseAnalytics = null
             }
         }
-        builder.setNegativeButton(R.string.cancel) { dialog: DialogInterface, i: Int ->
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
             dialog.cancel()
         }
 
