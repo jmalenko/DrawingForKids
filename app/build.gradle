@@ -10,10 +10,10 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "cz.jaro.drawing"
-        minSdkVersion 22
+        minSdkVersion 14
         targetSdkVersion 28
-        versionCode 9
-        versionName "9.0"
+        versionCode 10
+        versionName "10"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
