@@ -7,14 +7,14 @@ class RecentList<T> {
     private var to: Int = 0
 
 /*
-                   0   1   2   3                 Index used in the get/set functions
-           0   1   2   3   4   5   6   7   8     Index in the values array
-         -------------------------------------
-Values   |   |   | A | B | C | D |   |   |   |
-         -------------------------------------
-                   ^           ^
-                   |           |
-                   From        To
+                   0   1   2   3             Index used in the get/set functions
+           0   1   2   3   4   5   6   7     Index in the values array
+         ---------------------------------
+values   |   |   | A | B | C | D |   |   |
+         ---------------------------------
+                   ^               ^
+                   |               |
+                   from            to
 
 Invariant: There is always at least one null value in the values array.
 */
