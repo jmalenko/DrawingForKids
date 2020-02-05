@@ -122,6 +122,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
         input.hint = resources.getString(R.string.feedback_hint)
+        input.requestFocus()
 
         builder.setView(input)
 
