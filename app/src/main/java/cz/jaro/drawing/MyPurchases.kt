@@ -47,7 +47,7 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
                 // Refresh purchases (synchronously)
                 if (listener != null) {
                     val purchasesResult: Purchase.PurchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP)
-                    onPurchasesUpdated_(purchasesResult.responseCode, purchasesResult.purchasesList)
+                    onPurchasesUpdatedInternal(purchasesResult.responseCode, purchasesResult.purchasesList)
                 }
             }
 
@@ -96,7 +96,7 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
         billingClient.launchBillingFlow(activity, billingFlowParams)
     }
 
-    fun onPurchasesUpdated_(responseCode: Int, purchases: MutableList<Purchase>?) {
+    fun onPurchasesUpdatedInternal(responseCode: Int, purchases: MutableList<Purchase>?) {
         // Check for the purchases
         if (responseCode == BillingClient.BillingResponse.OK) {
             if (purchases != null) {
@@ -115,7 +115,7 @@ class MyPurchases(private val activity: Activity, private var listener: MyPurcha
     override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
         Log.d(tag, "onPurchasesUpdated($responseCode, $purchases?)")
 
-        onPurchasesUpdated_(responseCode, purchases)
+        onPurchasesUpdatedInternal(responseCode, purchases)
 
         listener?.onPurchasesUpdated(responseCode, purchases)
     }

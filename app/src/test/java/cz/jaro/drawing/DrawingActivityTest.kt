@@ -3,6 +3,7 @@ package cz.jaro.drawing
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.abs
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -115,7 +116,7 @@ class DrawingActivityTest {
         // 2nd element, all distances from zero
         for (deg in -90..90 step 10) {
             p = deg.toFloat()
-            angleExpected = Math.toRadians(Math.abs(p.toDouble()))
+            angleExpected = Math.toRadians(abs(p.toDouble()))
             o1 = vectorDegToRad(0f, 0f, 0f)
             o2 = vectorDegToRad(0f, p, 0f)
             angle = drawingActivity.angleBetweenOrientations(o1, o2)
@@ -125,7 +126,7 @@ class DrawingActivityTest {
         // 3rd element, all distances from zero
         for (deg in -90..90 step 10) {
             p = deg.toFloat()
-            angleExpected = Math.toRadians(Math.abs(p.toDouble()))
+            angleExpected = Math.toRadians(abs(p.toDouble()))
             o1 = vectorDegToRad(0f, 0f, 0f)
             o2 = vectorDegToRad(0f, p, 0f)
             angle = drawingActivity.angleBetweenOrientations(o1, o2)

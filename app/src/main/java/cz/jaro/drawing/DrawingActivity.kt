@@ -15,18 +15,18 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.*
 import android.preference.PreferenceManager
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -37,7 +37,7 @@ import kotlinx.android.synthetic.main.activity_drawing_debug.*
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.PI
+import kotlin.math.*
 
 /**
  * An activity that prevents interaction with outside of the app. Specifically:
@@ -624,12 +624,12 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             val o2 = sensorRecords[i].orientations
 
             val angle = angleBetweenOrientations(o1, o2)
-            logMessage += "\nTo ${vectorInRadToStringInDeg(o2)} is ${Math.round(Math.toDegrees(angle))} deg"
+            logMessage += "\nTo ${vectorInRadToStringInDeg(o2)} is ${Math.toDegrees(angle).roundToLong()} deg"
 
             val o3 = sensorRecords[i + 1].orientations
             val angle2 = angleBetweenOrientations(o3, o2)
             if (Math.PI / 9 < angle2) // If there is a significant jump
-                logMessage += "  jump ${Math.round(Math.toDegrees(angle2))} deg"
+                logMessage += "  jump ${Math.toDegrees(angle2).roundToLong()} deg"
 
             when (state) {
                 1 -> {
@@ -679,9 +679,9 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
     fun angleBetweenOrientations(o1: FloatArray, o2: FloatArray): Double {
         val orientationAngle = orientationAngle(o1, o2)
-        return if (Math.abs(o1[1]) < Math.PI / 3) { // If the device is NOT in horizontal position, consider also the roll
+        return if (abs(o1[1]) < Math.PI / 3) { // If the device is NOT in horizontal position, consider also the roll
             val rollAngle = rollAngle(o1, o2)
-            Math.max(orientationAngle, rollAngle)
+            max(orientationAngle, rollAngle)
         } else {
             orientationAngle
         }
@@ -728,14 +728,14 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
     private fun orientationAngle(o1: FloatArray, o2: FloatArray): Double {
         // Source: https://en.wikipedia.org/wiki/Great-circle_distance
 
-        val delta0 = Math.abs(o1[0] - o2[0])
+        val delta0 = abs(o1[0] - o2[0])
 
-        val addSin = Math.sin(o1[1].toDouble()) * Math.sin(o2[1].toDouble())
-        val addCos = Math.cos(o1[1].toDouble()) * Math.cos(o2[1].toDouble()) * Math.cos(delta0.toDouble())
+        val addSin = sin(o1[1].toDouble()) * sin(o2[1].toDouble())
+        val addCos = cos(o1[1].toDouble()) * cos(o2[1].toDouble()) * cos(delta0.toDouble())
 
         val add = addSin + addCos
 
-        val angle = Math.acos(add)
+        val angle = acos(add)
         return angle
     }
 
@@ -916,7 +916,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             val target = now.clone() as Calendar
             target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC) // Use the same interval as for keeper
 
-            var intent = Intent(context, PublicReceiver::class.java).let { intent ->
+            val intent = Intent(context, PublicReceiver::class.java).let { intent ->
                 intent.action = ACTION_COLLAPSE_NOTIFICATION_DRAWER
                 PendingIntent.getBroadcast(context, 0, intent, 0)
             }
@@ -949,7 +949,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         }
 
         fun vectorInRadToStringInDeg(v: FloatArray): String {
-            return "[${Math.round(Math.toDegrees(v[0].toDouble()))}, ${Math.round(Math.toDegrees(v[1].toDouble()))}, ${Math.round(Math.toDegrees(v[2].toDouble()))}]"
+            return "[${Math.toDegrees(v[0].toDouble()).roundToLong()}, ${Math.toDegrees(v[1].toDouble()).roundToLong()}, ${Math.toDegrees(v[2].toDouble()).roundToLong()}]"
         }
 
         fun constructPicturesDir(): File {

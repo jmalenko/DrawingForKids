@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.roundToLong
 
 
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
@@ -84,7 +85,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
             MotionEvent.ACTION_MOVE -> {
                 for (pointerIndex in 0 until event.pointerCount) {
                     val pointerId = event.getPointerId(pointerIndex)
-                    Log.v(tag, "pointerIndex=$pointerIndex, pointerId=$pointerId, x=${Math.round(event.getX(pointerIndex))}, y=${Math.round(event.getY(pointerIndex))}")
+                    Log.v(tag, "pointerIndex=$pointerIndex, pointerId=$pointerId, x=${event.getX(pointerIndex).roundToLong()}, y=${event.getY(pointerIndex).roundToLong()}")
                     val point = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
 
                     val curve = curves[pointerId]

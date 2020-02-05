@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
-import android.support.v4.content.ContextCompat
 import android.util.TypedValue
+import androidx.core.content.ContextCompat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -36,7 +36,7 @@ class MyCurve(context: Context, forbiddenColors: Set<Int>) {
         do {
             round++
 
-            val randomColorId = colors[random.nextInt(MyCurve.colors.size)]
+            val randomColorId = colors[random.nextInt(colors.size)]
             color = ContextCompat.getColor(context, randomColorId)
         } while (forbiddenColors.contains(color) && round < 100)
         paint.color = color

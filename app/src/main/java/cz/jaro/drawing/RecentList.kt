@@ -2,7 +2,7 @@ package cz.jaro.drawing
 
 class RecentList<T> {
 
-    private var values = kotlin.arrayOfNulls<Any>(1)
+    private var values = arrayOfNulls<Any>(1)
     private var from: Int = 0
     private var to: Int = 0
 
@@ -69,6 +69,7 @@ Invariant: There is always at least one null value in the values array.
         var i = from + index
         if (values.size <= i) i -= values.size
 
+        @Suppress("UNCHECKED_CAST")
         return values[i] as T
     }
 
@@ -95,12 +96,12 @@ Invariant: There is always at least one null value in the values array.
         }
 
     private fun expandArray() {
-        val values2 = kotlin.arrayOfNulls<Any>(2 * values.size)
+        val values2 = arrayOfNulls<Any>(2 * values.size)
         copyAndUse(values2)
     }
 
     private fun shrinkArray() {
-        val values2 = kotlin.arrayOfNulls<Any>(values.size / 2)
+        val values2 = arrayOfNulls<Any>(values.size / 2)
         copyAndUse(values2)
     }
 
@@ -150,7 +151,7 @@ Invariant: There is always at least one null value in the values array.
 //        str.append("]")
 
         str.append("[")
-        for (i in 0 until values.size) {
+        for (i in values.indices) {
             if (0 < i) str.append(", ")
             if (i == from) str.append(">>> ")
             if (i == to) str.append(" <<<")
