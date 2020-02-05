@@ -71,6 +71,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
 
     private val tag = DrawingActivity::class.java.name
 
+    @Suppress("DEPRECATION")
     private lateinit var keyguardLock: KeyguardManager.KeyguardLock
 
     private lateinit var sensorManager: SensorManager
@@ -504,13 +505,16 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             setTurnScreenOn(true)
             setShowWhenLocked(true)
         } else {
+            @Suppress("DEPRECATION")
             window.addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            @Suppress("DEPRECATION")
             window.addFlags(LayoutParams.FLAG_TURN_SCREEN_ON)
         }
 
         // Disable keyguard
         if (!isKindleFire()) {
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            @Suppress("DEPRECATION")
             keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE)
             keyguardLock.disableKeyguard()
         }
@@ -765,6 +769,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 v.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
+                @Suppress("DEPRECATION")
                 v.vibrate(duration)
             }
         }

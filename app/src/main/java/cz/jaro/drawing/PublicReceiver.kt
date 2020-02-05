@@ -91,6 +91,7 @@ class PublicReceiver : BroadcastReceiver() {
 
     private fun getForegroundActivityClassName(context: Context): String {
         val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        @Suppress("DEPRECATION")
         val task = manager.getRunningTasks(1)
         if (task.isEmpty()) return ""
         val componentInfo = task[0].topActivity
