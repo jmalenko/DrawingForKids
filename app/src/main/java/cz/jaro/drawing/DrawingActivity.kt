@@ -49,7 +49,7 @@ import kotlin.math.PI
  * - Prevent all keys/buttons, including Volume Up/Down, Back, Recent Apps
  * - Clear the image if the orientation changes by more than 90 degrees (and back) in one second
  * - A notification exists during the life of the activity - for quitting the app
- * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar).
+ * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar). Also includes collapsing the expanded notification drawer
  * - Save the image on quit and before it is cleared
  * - On first start, Show a dialog explaining how to quit the app
  *
@@ -872,6 +872,7 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
         const val ACTION_KEEP = "ACTION_KEEP"
         const val ACTION_CLEAR = "ACTION_CLEAR"
         const val ACTION_SETTINGS = "ACTION_SETTINGS"
+        const val ACTION_COLLAPSE_NOTIFICATION_DRAWER = "ACTION_COLLAPSE_NOTIFICATION_DRAWER"
 
         private const val DRAWING_DIR_NAME = "DrawingForKids"
         private const val DRAWING_FILE_NAME_DATE_FORMAT = "yyyyMMdd_HHmmss"
@@ -900,6 +901,25 @@ class DrawingActivity : AppCompatActivity(), SensorEventListener, View.OnSystemU
                 Log.i(tag, "Registering keeper")
 
                 setSystemAlarm(alarmManager!!, target, keeperIntent)
+            } else {
+                Log.w(tag, "Cannot register keeper")
+            }
+        }
+
+        fun registerCollapseNotificationDrawer(tag: String, context: Context) {
+            val now = GregorianCalendar()
+            val target = now.clone() as Calendar
+            target.add(Calendar.SECOND, KEEPER_INTERVAL_SEC) // Use the same interval as for keeper
+
+            var intent = Intent(context, PublicReceiver::class.java).let { intent ->
+                intent.action = ACTION_COLLAPSE_NOTIFICATION_DRAWER
+                PendingIntent.getBroadcast(context, 0, intent, 0)
+            }
+
+            if (alarmManager != null) {
+                Log.i(tag, "Registering collapse notification drawer")
+
+                setSystemAlarm(alarmManager!!, target, intent)
             } else {
                 Log.w(tag, "Cannot register keeper")
             }

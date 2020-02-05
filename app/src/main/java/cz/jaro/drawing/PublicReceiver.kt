@@ -58,14 +58,17 @@ class PublicReceiver : BroadcastReceiver() {
                 startIntent.action = DrawingActivity.ACTION_KEEP
                 startIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(startIntent)
+
+                // Note: (status bar and) notification drawer is collapsed by it's own mechanism (that collapses the notification drawer X seconds after it was expanded). See next case.
+            }
+            DrawingActivity.ACTION_COLLAPSE_NOTIFICATION_DRAWER -> {
+                doCollapseNotificationDrawer(context)
             }
             DrawingActivity.ACTION_QUIT -> {
                 doQuit(context, intent)
             }
             DrawingActivity.ACTION_SETTINGS -> {
-                // Collapse Android notification tray
-                val closeDialogIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-                context.sendBroadcast(closeDialogIntent)
+                doCollapseNotificationDrawer(context)
 
                 // Start activity
                 val startIntent = Intent(context, SettingsActivity::class.java)
@@ -78,6 +81,12 @@ class PublicReceiver : BroadcastReceiver() {
                 localBroadcastManager.sendBroadcast(intent)
             }
         }
+    }
+
+    private fun doCollapseNotificationDrawer(context: Context) {
+        // Collapse Android notification drawer
+        val closeDialogIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        context.sendBroadcast(closeDialogIntent)
     }
 
     private fun getForegroundActivityClassName(context: Context): String {

@@ -113,9 +113,15 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
                     val isPersisted = !nonPersistedCurves.contains(curve)
                     if (!isPersisted) // If the curve is non-persistent ...
                         if (now - barsAppearedTime < TIME_AROUND_BARS) { // ... and status bar appeared in the last second
+                            // Remove the curve
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and cancelling non-persistent curve ${curve.createTime % 1000}")
                             nonPersistedCurves.remove(curve)
                             invalidate()
+
+                            // Register to collapse the notification drawer
+                            // Note: we are registering this when the status bar appears (1st action: pull from top edge of the screen). Then, the user usually
+                            // pulls the status bar (2nd action) to expand the notification drawer. Both actions are reverted by the registered action.
+                            DrawingActivity.registerCollapseNotificationDrawer(tag, context)
                         } else {
                             (getActivity() as DrawingActivity).log(Log.DEBUG, "Ending and keeping non-persistent curve ${curve.createTime % 1000}")
                             curve.endTime = now
