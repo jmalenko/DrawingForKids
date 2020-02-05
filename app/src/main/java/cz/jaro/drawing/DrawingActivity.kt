@@ -51,7 +51,7 @@ import kotlin.math.PI
  * - A notification exists during the life of the activity - for quitting the app
  * - Bring the app to front regularly every 3 seconds. Useful when the user presses the Home key (on the navigation bar). Also includes collapsing the expanded notification drawer
  * - Save the image on quit and before it is cleared
- * - On first start, Show a dialog explaining how to quit the app
+ * - On first start, show a dialog explaining how to quit the app
  *
  * The activity can be quit (only) byt the following
  * - 1. Pull down the status bar (needs two swipes as the app is in fullscreen sticky immersive mode), 2. press the Quit action in the notification
