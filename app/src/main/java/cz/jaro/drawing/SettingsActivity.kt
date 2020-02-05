@@ -86,6 +86,7 @@ class SettingsActivity : AppCompatActivity(), MyPurchasesListener {
         }
         intent.setDataAndType(uri, "image/*") // TODO In  my testing, the mime type "image/*" did NOT work in any of the virtual devices (the gallery app started, but was showing black screen with some commands; it seemed that that was folder view, but without any images). The virtual devices worked with "*/*" mime type, but the list of all apps was shown for the user to pick up the one to use. Testing on Samsung Galaxy S7 with Android lower than N worked fine with "image/*" mime type.
         startActivity(intent)
+        // TODO The image viewer will be started but the keeper returns the drawing activity to the front (in few seconds)...
     }
 
     private fun updateSavedDrawingsVisibility() {
